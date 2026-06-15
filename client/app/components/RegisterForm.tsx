@@ -14,16 +14,36 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
 
     if (form.password !== form.confirmPassword) {
       setError("As senhas não coincidem.");
       return;
     }
-
     setError("");
-    console.log("register", form);
+
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name: form.name,
+        email: form.email,
+        password: form.password,
+        password_confirmation: form.confirmPassword
+      }),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message ?? "Erro ao cadastrar");
+      return;
+    }
+    
+    localStorage.setItem("token", data.token);
+    alert("Cadastro realizado com sucesso");
+
   }
 
   return (
