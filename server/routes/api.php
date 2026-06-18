@@ -24,5 +24,7 @@ Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
 // Appointments
 Route::get('/appointments', [AppointmentController::class, 'list']);
 Route::post('/appointments', [AppointmentController::class, 'store']);
+Route::patch('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm']);
+Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
 Route::put('/appointments/{appointment}', [AppointmentController::class, 'update']);
 Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);

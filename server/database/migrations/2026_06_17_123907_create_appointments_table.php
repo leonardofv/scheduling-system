@@ -18,6 +18,7 @@ return new class extends Migration
             $table->date('date');
             $table->time('time');
             $table->string('observation')->nullable();
+            $table->string('status')->default('pendente');
             $table->timestamps();
         });
     }

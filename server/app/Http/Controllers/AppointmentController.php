@@ -26,6 +26,20 @@ class AppointmentController extends Controller
         return response()->json($appointment, 201);
     }
 
+    //confirmar agendamento
+    public function confirm(Appointment $appointment): JsonResponse
+    {
+        $appointment->update(['status' => 'confirmado']);
+        return response()->json($appointment);
+    }
+
+    //cancelar agendamento
+    public function cancel(Appointment $appointment): JsonResponse
+    {
+        $appointment->update(['status' => 'cancelado']);
+        return response()->json($appointment);
+    }
+
     //listar agendamentos
     public function list(): JsonResponse
     {

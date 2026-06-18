@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-#[Fillable(['user_id', 'service_id', 'date', 'time', 'observation'])]
+#[Fillable(['user_id', 'service_id', 'date', 'time', 'observation', 'status'])]
 class Appointment extends Model
 {
     use HasFactory;
