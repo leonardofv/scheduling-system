@@ -5,9 +5,12 @@ namespace App\Http\Controllers;
 use App\Models\Appointment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Exception;
 
 class AppointmentController extends Controller
 {
+    //registrar agendamento
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -21,5 +24,38 @@ class AppointmentController extends Controller
         $appointment = Appointment::create($data);
 
         return response()->json($appointment, 201);
+    }
+
+    //listar agendamentos
+    public function list(): JsonResponse
+    {
+        $appointments = Appointment::all();
+        return response()->json($appointments);
+    }
+
+    //atualizar agendamento
+    public function update(Request $request, Appointment $appointment): JsonResponse
+    {
+        $data = $request->validate([
+            'date' => 'sometimes|required|date',
+            'time' => 'sometimes|required|date_format:H:i',
+            'observation' => 'nullable|string|max:255'
+        ]);
+
+        $appointment->update($data);
+        return response()->json($appointment);
+    }
+
+    //excluir agendamento
+    public function destroy(Appointment $appointment): JsonResponse
+    {
+        try {
+            $appointment->delete();
+            return response()->json(["message" => "Agendamento excluído"], 200);
+        }catch(Exception $e) {
+
+            Log::error('Erro ao excluir agendamento: ' . $e->getMessage() . $e->getFile());
+            return response()->json(["message" => "Erro ao excluir agendamento"], 500);
+        }
     }
 }

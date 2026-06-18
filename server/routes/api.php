@@ -6,16 +6,23 @@ use App\Http\Controllers\ServiceController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
+// User
+Route::get('/user', function (Request $request) {
+    return $request->user();
+})->middleware('auth:sanctum');
 
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login', [AuthController::class, 'login']);
 Route::get('/users', [AuthController::class, 'users']);
 
-Route::post('/registerService', [ServiceController::class, 'store']);
-Route::post('/registerAppointment', [AppointmentController::class, 'store']);
+// Services
+Route::get('/services', [ServiceController::class, 'list']);
+Route::post('/services', [ServiceController::class, 'store']);
+Route::put('/services/{service}', [ServiceController::class, 'update']);
+Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
 
-
-
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Appointments
+Route::get('/appointments', [AppointmentController::class, 'list']);
+Route::post('/appointments', [AppointmentController::class, 'store']);
+Route::put('/appointments/{appointment}', [AppointmentController::class, 'update']);
+Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
