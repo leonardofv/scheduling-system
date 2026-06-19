@@ -8,14 +8,30 @@ interface Props {
 
 export default function LoginForm({ onSwitchToRegister }: Props) {
   const [form, setForm] = useState({ email: "", password: "" });
+  const [ error, setError ] = useState("");
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   }
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    console.log("login", form);
+    
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),
+    });
+
+    const data = await res.json();
+
+    if (!res.ok) {
+      setError(data.message ?? "Credenciais Inválidas");
+      return;
+    }
+
+    localStorage.setItem("token", data.token);
+    alert("Login realizado com sucesso");
   }
 
   return (
@@ -51,6 +67,8 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
           Esqueceu a senha?
         </button>
       </div>
+
+      {error && <p className="text-xs text-red-500">{error}</p>}
 
       <button
         type="submit"
