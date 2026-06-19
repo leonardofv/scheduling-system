@@ -7,6 +7,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
+use Carbon\Carbon;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class AppointmentController extends Controller
 {
@@ -21,8 +24,11 @@ class AppointmentController extends Controller
             'observation' => 'nullable|string|max:255'
         ]);
 
-        $appointment = Appointment::create($data);
+        if($error = $this->validateDateTime($data['date'], $data['time'])) {
+            return $error;
+        }
 
+        $appointment = Appointment::create($data);
         return response()->json($appointment, 201);
     }
 
@@ -68,6 +74,15 @@ class AppointmentController extends Controller
             'observation' => 'nullable|string|max:255'
         ]);
 
+        if(isset($data['date']) || isset($data['time'])) {
+            $date = $data['date'] ?? $appointment->date;
+            $time = $data['time'] ?? $appointment->time;
+
+            if($error = $this->validateDateTime($date, $time, $appointment->id)) {
+                return $error;
+            }
+        }
+
         $appointment->update($data);
         return response()->json($appointment);
     }
@@ -83,5 +98,27 @@ class AppointmentController extends Controller
             Log::error('Erro ao excluir agendamento: ' . $e->getMessage() . $e->getFile());
             return response()->json(["message" => "Erro ao excluir agendamento"], 500);
         }
+    }
+
+    private function validateDateTime(string $date, string $time, ?int $ignoreId = null): ?JsonResponse
+    {
+        if(Carbon::parse("$date $time")->isPast()) {
+            return response()->json([
+                'message' => 'Não é possível agendar para uma data e horário no passado.'
+            ], 422);
+        }
+
+        $conflict = Appointment::where('date', $date)
+            ->where('time', $time)
+            ->where('status', '!=', 'cancelado')
+            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
+            ->exists();
+        
+        if ($conflict) {
+            return response()->json([
+                'message' => 'Já existe agendamento para essa data e horário'
+            ], 422);
+        }
+        return null;
     }
 }
