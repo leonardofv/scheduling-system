@@ -34,8 +34,14 @@ class AppointmentController extends Controller
     }
 
     //cancelar agendamento
-    public function cancel(Appointment $appointment): JsonResponse
+    public function cancel(Appointment $appointment, Request $request): JsonResponse
     {
+        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Você só pode cancelar seus próprios agendamentos'
+            ], 403);
+        }
+
         $appointment->update(['status' => 'cancelado']);
         return response()->json($appointment);
     }
@@ -50,6 +56,12 @@ class AppointmentController extends Controller
     //atualizar agendamento
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
+        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
+            return response()->json([
+                'message' => 'Você só pode atualizar seus próprios agendamentos'
+            ], 403);
+        }
+
         $data = $request->validate([
             'date' => 'sometimes|required|date',
             'time' => 'sometimes|required|date_format:H:i',
