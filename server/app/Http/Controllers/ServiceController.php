@@ -14,9 +14,9 @@ class ServiceController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'name' => 'required|string',
+            'name' => 'required|string|max:255',
             'description' => 'nullable|string|max:255',
-            'value' => 'required|numeric',
+            'value' => 'required|numeric|min:0',
         ]);
 
         $service = Service::create($data);
@@ -33,9 +33,9 @@ class ServiceController extends Controller
     public function update(Request $request, Service $service): JsonResponse
     {
         $data = $request->validate([
-            'name' => 'sometimes|required|string',
+            'name' => 'sometimes|required|string|max:255',
             'description' => 'nullable|string|max:255',
-            'value' => 'sometimes|required|numeric',
+            'value' => 'sometimes|required|numeric|min:0',
         ]);
 
         $service->update($data);
