@@ -17,7 +17,6 @@ class AppointmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'service_id' => 'required|exists:services,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
@@ -28,7 +27,7 @@ class AppointmentController extends Controller
             return $error;
         }
 
-        $appointment = Appointment::create($data);
+        $appointment = $request->user()->appointments()->create($data);
         return response()->json($appointment, 201);
     }
 
