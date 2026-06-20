@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Enums\AppointmentStatus;
 
 #[Fillable(['user_id', 'service_id', 'date', 'time', 'observation', 'status'])]
 class Appointment extends Model
@@ -18,5 +19,11 @@ class Appointment extends Model
     public function service()
     {
         return $this->belongsTo(Service::class);
+    }
+    protected function casts(): array
+    {
+        return [
+            'status' => AppointmentStatus::class
+        ];
     }
 }

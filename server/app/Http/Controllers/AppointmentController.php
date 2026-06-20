@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\AppointmentStatus;
 
 
 class AppointmentController extends Controller
@@ -34,13 +35,13 @@ class AppointmentController extends Controller
     //confirmar agendamento
     public function confirm(Appointment $appointment): JsonResponse
     {
-        if($appointment->status !== 'pendente') {
+        if($appointment->status !== AppointmentStatus::Pendente) {
             return response()->json([
                 'message' => 'Apenas agendamentos pendentes podem ser confirmados'
             ], 409);
         }
 
-        $appointment->update(['status' => 'confirmado']);
+        $appointment->update(['status' => AppointmentStatus::Confirmado]);
         return response()->json($appointment);
     }
 
@@ -52,13 +53,13 @@ class AppointmentController extends Controller
                 'message' => 'Você só pode cancelar seus próprios agendamentos'
             ], 403);
         }
-        if($appointment->status === 'cancelado') {
+        if($appointment->status === AppointmentStatus::Cancelado) {
             return response()->json([
                 'message' => 'Este agendamento já está cancelado'
             ], 409);
         }
 
-        $appointment->update(['status' => 'cancelado']);
+        $appointment->update(['status' => AppointmentStatus::Cancelado]);
         return response()->json($appointment);
     }
 
@@ -126,7 +127,7 @@ class AppointmentController extends Controller
 
         $conflict = Appointment::where('date', $date)
             ->where('time', $time)
-            ->where('status', '!=', 'cancelado')
+            ->where('status', '!=', AppointmentStatus::Cancelado)
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
             ->exists();
         
