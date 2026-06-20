@@ -52,9 +52,15 @@ class AppointmentController extends Controller
     }
 
     //listar agendamentos
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $appointments = Appointment::all();
+        $user = $request->user();
+
+        $appointments = Appointment::query()
+            ->with(['user', 'service'])
+            ->when($user->role !== 'admin', fn ($query) => $query->where('user_id', $user->id))
+            ->get();
+
         return response()->json($appointments);
     }
 
@@ -66,7 +72,7 @@ class AppointmentController extends Controller
                 'message' => 'Você só pode atualizar seus próprios agendamentos'
             ], 403);
         }
-
+        // serviço não pode ser alterado após criação
         $data = $request->validate([
             'date' => 'sometimes|required|date',
             'time' => 'sometimes|required|date_format:H:i',
