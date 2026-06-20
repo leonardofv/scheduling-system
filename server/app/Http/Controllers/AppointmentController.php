@@ -119,6 +119,8 @@ class AppointmentController extends Controller
 
     private function validateDateTime(string $date, string $time, ?int $ignoreId = null): ?JsonResponse
     {
+        $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
+
         if(Carbon::parse("$date $time")->isPast()) {
             return response()->json([
                 'message' => 'Não é possível agendar para uma data e horário no passado.'
@@ -126,8 +128,8 @@ class AppointmentController extends Controller
         }
 
         $conflict = Appointment::where('date', $date)
-            ->where('time', $time)
-            ->where('status', '!=', AppointmentStatus::Cancelado)
+            ->where('time', $time) //busca por '14:00:00
+            ->where('status', '!=', AppointmentStatus::Cancelado->value)
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
             ->exists();
         
