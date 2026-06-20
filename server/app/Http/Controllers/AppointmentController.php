@@ -34,6 +34,12 @@ class AppointmentController extends Controller
     //confirmar agendamento
     public function confirm(Appointment $appointment): JsonResponse
     {
+        if($appointment->status !== 'pendente') {
+            return response()->json([
+                'message' => 'Apenas agendamentos pendentes podem ser confirmados'
+            ], 409);
+        }
+
         $appointment->update(['status' => 'confirmado']);
         return response()->json($appointment);
     }
@@ -45,6 +51,11 @@ class AppointmentController extends Controller
             return response()->json([
                 'message' => 'Você só pode cancelar seus próprios agendamentos'
             ], 403);
+        }
+        if($appointment->status === 'cancelado') {
+            return response()->json([
+                'message' => 'Este agendamento já está cancelado'
+            ], 409);
         }
 
         $appointment->update(['status' => 'cancelado']);
