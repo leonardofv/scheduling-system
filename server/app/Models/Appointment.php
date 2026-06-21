@@ -34,4 +34,10 @@ class Appointment extends Model
             set: fn ($value) => Carbon::parse($value)->format('H:i:s')
         );
     }
+    protected function scheduleAt(): Attribute
+    {
+        return Attribute::make(
+            get: fn () => Carbon::parse("{$this->date} {$this->time}")
+        );
+    }
 }

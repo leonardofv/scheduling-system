@@ -42,6 +42,11 @@ class AppointmentController extends Controller
                 'message' => 'Apenas agendamentos pendentes podem ser confirmados'
             ], 409);
         }
+        if($appointment->scheduleAt->isPast()) {
+            return response()->json([
+                'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
+            ], 422);
+        }
 
         $appointment->update(['status' => AppointmentStatus::Confirmado]);
         return response()->json($appointment);
