@@ -53,7 +53,7 @@ class AppointmentController extends Controller
     }
 
     //cancelar agendamento
-    public function cancel(Appointment $appointment, Request $request): JsonResponse
+    public function cancel(Appointment $appointment): JsonResponse
     {
         $this->authorize('cancel', $appointment);
 
@@ -117,7 +117,7 @@ class AppointmentController extends Controller
     }
 
     //excluir agendamento
-    public function delete(Appointment $appointment): JsonResponse
+    public function destroy(Appointment $appointment): JsonResponse
     {
         $this->authorize('delete', $appointment);
 
