@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Log;
 use Exception;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
+use App\Enums\AppointmentStatus;
 
 
 class AppointmentController extends Controller
@@ -17,7 +18,6 @@ class AppointmentController extends Controller
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
-            'user_id' => 'required|exists:users,id',
             'service_id' => 'required|exists:services,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
@@ -28,46 +28,69 @@ class AppointmentController extends Controller
             return $error;
         }
 
-        $appointment = Appointment::create($data);
+        $appointment = $request->user()->appointments()->create($data);
         return response()->json($appointment, 201);
     }
 
     //confirmar agendamento
     public function confirm(Appointment $appointment): JsonResponse
     {
-        $appointment->update(['status' => 'confirmado']);
+        $this->authorize('confirm', $appointment);
+
+        if($appointment->status !== AppointmentStatus::Pendente) {
+            return response()->json([
+                'message' => 'Apenas agendamentos pendentes podem ser confirmados'
+            ], 409);
+        }
+        if($appointment->scheduleAt->isPast()) {
+            return response()->json([
+                'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
+            ], 422);
+        }
+
+        $appointment->update(['status' => AppointmentStatus::Confirmado]);
         return response()->json($appointment);
     }
 
     //cancelar agendamento
     public function cancel(Appointment $appointment, Request $request): JsonResponse
     {
-        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
+        $this->authorize('cancel', $appointment);
+
+        if($appointment->status === AppointmentStatus::Cancelado) {
             return response()->json([
-                'message' => 'Você só pode cancelar seus próprios agendamentos'
-            ], 403);
+                'message' => 'Este agendamento já está cancelado'
+            ], 409);
         }
 
-        $appointment->update(['status' => 'cancelado']);
+        $appointment->update(['status' => AppointmentStatus::Cancelado]);
         return response()->json($appointment);
     }
 
     //listar agendamentos
-    public function list(): JsonResponse
+    public function list(Request $request): JsonResponse
     {
-        $appointments = Appointment::all();
+        $user = $request->user();
+
+        $appointments = Appointment::query()
+            ->with(['user', 'service'])
+            ->when($user->role !== 'admin', fn ($query) => $query->where('user_id', $user->id))
+            ->get();
+
         return response()->json($appointments);
     }
 
     //atualizar agendamento
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
-        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
+        $this->authorize('update', $appointment);
+        
+        if($appointment->status === AppointmentStatus::Cancelado) {
             return response()->json([
-                'message' => 'Você só pode atualizar seus próprios agendamentos'
-            ], 403);
+                'message' => 'Agendamentos cancelados não podem ser alterados'
+            ], 409);
         }
-
+        // serviço não pode ser alterado após criação
         $data = $request->validate([
             'date' => 'sometimes|required|date',
             'time' => 'sometimes|required|date_format:H:i',
@@ -75,6 +98,12 @@ class AppointmentController extends Controller
         ]);
 
         if(isset($data['date']) || isset($data['time'])) {
+            if($appointment->status === AppointmentStatus::Confirmado) {
+                return response()->json([
+                    'message' => 'Para alterar a data/hora de um agendamento confirmado, cancele e crie um novo'
+                ], 409);
+            }
+            
             $date = $data['date'] ?? $appointment->date;
             $time = $data['time'] ?? $appointment->time;
 
@@ -88,8 +117,10 @@ class AppointmentController extends Controller
     }
 
     //excluir agendamento
-    public function destroy(Appointment $appointment): JsonResponse
+    public function delete(Appointment $appointment): JsonResponse
     {
+        $this->authorize('delete', $appointment);
+
         try {
             $appointment->delete();
             return response()->json(["message" => "Agendamento excluído"], 200);
@@ -102,6 +133,8 @@ class AppointmentController extends Controller
 
     private function validateDateTime(string $date, string $time, ?int $ignoreId = null): ?JsonResponse
     {
+        $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
+
         if(Carbon::parse("$date $time")->isPast()) {
             return response()->json([
                 'message' => 'Não é possível agendar para uma data e horário no passado.'
@@ -109,8 +142,8 @@ class AppointmentController extends Controller
         }
 
         $conflict = Appointment::where('date', $date)
-            ->where('time', $time)
-            ->where('status', '!=', 'cancelado')
+            ->where('time', $time) //busca por '14:00:00
+            ->where('status', '!=', AppointmentStatus::Cancelado->value)
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
             ->exists();
         

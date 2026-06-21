@@ -18,6 +18,7 @@ Route::middleware('auth:sanctum')->group(function() {
     });
     Route::get('/services', [ServiceController::class, 'list']);
     Route::post('/appointments', [AppointmentController::class, 'store']);
+    Route::get('/appointments', [AppointmentController::class, 'list']);
     Route::put('/appointments/{appointment}', [AppointmentController::class, 'update']);
     Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
 });
@@ -30,7 +31,6 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function() {
     Route::put('/services/{service}', [ServiceController::class, 'update']);
     Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
     
-    Route::get('/appointments', [AppointmentController::class, 'list']);
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
     Route::patch('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm']);
 });
