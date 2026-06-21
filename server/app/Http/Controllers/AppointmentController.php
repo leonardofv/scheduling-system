@@ -35,6 +35,8 @@ class AppointmentController extends Controller
     //confirmar agendamento
     public function confirm(Appointment $appointment): JsonResponse
     {
+        $this->authorize('confirm', $appointment);
+
         if($appointment->status !== AppointmentStatus::Pendente) {
             return response()->json([
                 'message' => 'Apenas agendamentos pendentes podem ser confirmados'
@@ -48,11 +50,8 @@ class AppointmentController extends Controller
     //cancelar agendamento
     public function cancel(Appointment $appointment, Request $request): JsonResponse
     {
-        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
-            return response()->json([
-                'message' => 'Você só pode cancelar seus próprios agendamentos'
-            ], 403);
-        }
+        $this->authorize('cancel', $appointment);
+
         if($appointment->status === AppointmentStatus::Cancelado) {
             return response()->json([
                 'message' => 'Este agendamento já está cancelado'
@@ -79,11 +78,8 @@ class AppointmentController extends Controller
     //atualizar agendamento
     public function update(Request $request, Appointment $appointment): JsonResponse
     {
-        if($request->user()->role !== 'admin' && $appointment->user_id !== $request->user()->id) {
-            return response()->json([
-                'message' => 'Você só pode atualizar seus próprios agendamentos'
-            ], 403);
-        }
+        $this->authorize('update', $appointment);
+        
         if($appointment->status === AppointmentStatus::Cancelado) {
             return response()->json([
                 'message' => 'Agendamentos cancelados não podem ser alterados'
@@ -116,8 +112,10 @@ class AppointmentController extends Controller
     }
 
     //excluir agendamento
-    public function destroy(Appointment $appointment): JsonResponse
+    public function delete(Appointment $appointment): JsonResponse
     {
+        $this->authorize('delete', $appointment);
+
         try {
             $appointment->delete();
             return response()->json(["message" => "Agendamento excluído"], 200);
