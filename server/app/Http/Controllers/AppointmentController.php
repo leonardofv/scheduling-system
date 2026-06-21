@@ -84,6 +84,11 @@ class AppointmentController extends Controller
                 'message' => 'Você só pode atualizar seus próprios agendamentos'
             ], 403);
         }
+        if($appointment->status === AppointmentStatus::Cancelado) {
+            return response()->json([
+                'message' => 'Agendamentos cancelados não podem ser alterados'
+            ], 409);
+        }
         // serviço não pode ser alterado após criação
         $data = $request->validate([
             'date' => 'sometimes|required|date',
@@ -92,6 +97,12 @@ class AppointmentController extends Controller
         ]);
 
         if(isset($data['date']) || isset($data['time'])) {
+            if($appointment->status === AppointmentStatus::Confirmado) {
+                return response()->json([
+                    'message' => 'Para alterar a data/hora de um agendamento confirmado, cancele e crie um novo'
+                ], 409);
+            }
+            
             $date = $data['date'] ?? $appointment->date;
             $time = $data['time'] ?? $appointment->time;
 
