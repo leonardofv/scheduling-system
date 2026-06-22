@@ -7,25 +7,22 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use App\Enums\AppointmentStatus;
-
+use App\Services\AppointmentScheduler;
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
     //registrar agendamento
-    public function store(Request $request): JsonResponse
+    public function store(StoreAppointmentRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'observation' => 'nullable|string|max:255'
-        ]);
+        $data = $request->validated();
 
-        if($error = $this->validateDateTime($data['date'], $data['time'])) {
-            return $error;
+        if($error = $this->scheduler->findConflictMessage($data['date'], $data['time'])) {
+            return response()->json([
+                'message' => $error
+            ], 422);
         }
 
         $appointment = $request->user()->appointments()->create($data);
@@ -81,7 +78,7 @@ class AppointmentController extends Controller
     }
 
     //atualizar agendamento
-    public function update(Request $request, Appointment $appointment): JsonResponse
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
         $this->authorize('update', $appointment);
         
@@ -90,12 +87,8 @@ class AppointmentController extends Controller
                 'message' => 'Agendamentos cancelados não podem ser alterados'
             ], 409);
         }
-        // serviço não pode ser alterado após criação
-        $data = $request->validate([
-            'date' => 'sometimes|required|date',
-            'time' => 'sometimes|required|date_format:H:i',
-            'observation' => 'nullable|string|max:255'
-        ]);
+    
+        $data = $request->validated();
 
         if(isset($data['date']) || isset($data['time'])) {
             if($appointment->status === AppointmentStatus::Confirmado) {
@@ -107,8 +100,10 @@ class AppointmentController extends Controller
             $date = $data['date'] ?? $appointment->date;
             $time = $data['time'] ?? $appointment->time;
 
-            if($error = $this->validateDateTime($date, $time, $appointment->id)) {
-                return $error;
+            if($error = $this->scheduler->findConflictMessage($date, $time, $appointment->id)) {
+                return response()->json([
+                    'message' => $error
+                ], 422);
             }
         }
 
@@ -131,27 +126,9 @@ class AppointmentController extends Controller
         }
     }
 
-    private function validateDateTime(string $date, string $time, ?int $ignoreId = null): ?JsonResponse
+    public function __construct(private AppointmentScheduler $scheduler)
     {
-        $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
-
-        if(Carbon::parse("$date $time")->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível agendar para uma data e horário no passado.'
-            ], 422);
-        }
-
-        $conflict = Appointment::where('date', $date)
-            ->where('time', $time) //busca por '14:00:00
-            ->where('status', '!=', AppointmentStatus::Cancelado->value)
-            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
-            ->exists();
         
-        if ($conflict) {
-            return response()->json([
-                'message' => 'Já existe agendamento para essa data e horário'
-            ], 422);
-        }
-        return null;
     }
+   
 }
