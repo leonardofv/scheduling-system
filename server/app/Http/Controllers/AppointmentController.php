@@ -9,18 +9,15 @@ use Illuminate\Support\Facades\Log;
 use Exception;
 use App\Enums\AppointmentStatus;
 use App\Services\AppointmentScheduler;
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 
 class AppointmentController extends Controller
 {
     //registrar agendamento
-    public function store(Request $request): JsonResponse
+    public function store(StoreAppointmentRequest $request): JsonResponse
     {
-        $data = $request->validate([
-            'service_id' => 'required|exists:services,id',
-            'date' => 'required|date',
-            'time' => 'required|date_format:H:i',
-            'observation' => 'nullable|string|max:255'
-        ]);
+        $data = $request->validated();
 
         if($error = $this->scheduler->findConflictMessage($data['date'], $data['time'])) {
             return response()->json([
@@ -81,7 +78,7 @@ class AppointmentController extends Controller
     }
 
     //atualizar agendamento
-    public function update(Request $request, Appointment $appointment): JsonResponse
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
         $this->authorize('update', $appointment);
         
@@ -90,12 +87,8 @@ class AppointmentController extends Controller
                 'message' => 'Agendamentos cancelados não podem ser alterados'
             ], 409);
         }
-        // serviço não pode ser alterado após criação
-        $data = $request->validate([
-            'date' => 'sometimes|required|date',
-            'time' => 'sometimes|required|date_format:H:i',
-            'observation' => 'nullable|string|max:255'
-        ]);
+    
+        $data = $request->validated();
 
         if(isset($data['date']) || isset($data['time'])) {
             if($appointment->status === AppointmentStatus::Confirmado) {
