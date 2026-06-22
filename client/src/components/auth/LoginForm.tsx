@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 interface Props {
   onSwitchToRegister: () => void;
@@ -8,7 +9,8 @@ interface Props {
 
 export default function LoginForm({ onSwitchToRegister }: Props) {
   const [form, setForm] = useState({ email: "", password: "" });
-  const [ error, setError ] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -31,7 +33,7 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
     }
 
     localStorage.setItem("token", data.token);
-    alert("Login realizado com sucesso");
+    router.push("/dashboard");
   }
 
   return (
