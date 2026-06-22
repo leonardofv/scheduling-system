@@ -28,10 +28,18 @@ class Appointment extends Model
             'status' => AppointmentStatus::class,
         ];
     }
+    //Normalização da hora para H:m:s
     protected function time(): Attribute
     {
         return Attribute::make(
             set: fn ($value) => Carbon::parse($value)->format('H:i:s')
+        );
+    }
+    //normalização da data para Y-m-d
+    protected function date(): Attribute
+    {
+        return Attribute::make(
+            set: fn ($value) => Carbon::parse($value)->format('Y-m-d')
         );
     }
     protected function scheduleAt(): Attribute
