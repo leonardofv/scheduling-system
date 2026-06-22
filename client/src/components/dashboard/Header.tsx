@@ -65,9 +65,9 @@ export default function Header() {
 
   return (
     <header className="bg-white border-b border-gray-200 shadow-sm">
-      <div className="max-w-7xl mx-auto px-6 py-4">
-        {/* Top Row - Logo and User Menu */}
-        <div className="flex items-center justify-between mb-4">
+      {/* Top Row - Logo and User Menu */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <button
               onClick={() => router.push("/dashboard")}
@@ -123,72 +123,76 @@ export default function Header() {
             </button>
           </div>
         </div>
-
-        {/* Bottom Row - Navigation */}
-        <div className="flex gap-8 bg-indigo-600 -mx-6 -mb-4 -mt-4 px-6 py-3 rounded-b-lg">
-          <button
-            onClick={() => {
-              const pathname = window.location.pathname;
-              if (pathname === "/dashboard") {
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              } else {
-                router.push("/dashboard");
-              }
-            }}
-            className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-          >
-            Página Inicial
-          </button>
-          <button
-            onClick={() => {
-              const pathname = window.location.pathname;
-              if (pathname === "/dashboard") {
-                const section = document.getElementById("secoes");
-                if (section) {
-                  section.scrollIntoView({ behavior: "smooth" });
-                }
-              } else {
-                router.push("/dashboard/appointments");
-              }
-            }}
-            className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-          >
-            Agendamentos
-          </button>
-          <button
-            onClick={() => {
-              const pathname = window.location.pathname;
-              if (pathname === "/dashboard") {
-                const section = document.getElementById("secoes");
-                if (section) {
-                  section.scrollIntoView({ behavior: "smooth" });
-                }
-              } else {
-                router.push("/dashboard/services");
-              }
-            }}
-            className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-          >
-            Serviços
-          </button>
-          <button
-            onClick={() => {
-              const pathname = window.location.pathname;
-              if (pathname === "/dashboard") {
-                const section = document.getElementById("secoes");
-                if (section) {
-                  section.scrollIntoView({ behavior: "smooth" });
-                }
-              } else {
-                router.push("/dashboard/reports");
-              }
-            }}
-            className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-          >
-            Relatórios
-          </button>
-        </div>
       </div>
+
+      {/* Bottom Row - Navigation (Full Width) */}
+      <nav className="bg-indigo-600 border-t border-indigo-700">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
+          <div className="flex gap-8">
+            <button
+              onClick={() => {
+                const pathname = window.location.pathname;
+                if (pathname === "/dashboard") {
+                  window.scrollTo({ top: 0, behavior: "smooth" });
+                } else {
+                  router.push("/dashboard");
+                }
+              }}
+              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
+            >
+              Página Inicial
+            </button>
+            <button
+              onClick={() => {
+                const pathname = window.location.pathname;
+                if (pathname === "/dashboard") {
+                  const section = document.getElementById("secoes");
+                  if (section) {
+                    section.scrollIntoView({ behavior: "smooth" });
+                  }
+                } else {
+                  router.push("/dashboard/appointments");
+                }
+              }}
+              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
+            >
+              Agendamentos
+            </button>
+            <button
+              onClick={() => {
+                const pathname = window.location.pathname;
+                if (pathname === "/dashboard") {
+                  const section = document.getElementById("secoes");
+                  if (section) {
+                    section.scrollIntoView({ behavior: "smooth" });
+                  }
+                } else {
+                  router.push("/dashboard/services");
+                }
+              }}
+              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
+            >
+              Serviços
+            </button>
+            <button
+              onClick={() => {
+                const pathname = window.location.pathname;
+                if (pathname === "/dashboard") {
+                  const section = document.getElementById("secoes");
+                  if (section) {
+                    section.scrollIntoView({ behavior: "smooth" });
+                  }
+                } else {
+                  router.push("/dashboard/reports");
+                }
+              }}
+              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
+            >
+              Relatórios
+            </button>
+          </div>
+        </div>
+      </nav>
     </header>
   );
 }
