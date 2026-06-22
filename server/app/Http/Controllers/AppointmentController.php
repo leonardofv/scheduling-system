@@ -7,10 +7,8 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use Carbon\Carbon;
-use Illuminate\Database\Eloquent\Builder;
 use App\Enums\AppointmentStatus;
-
+use App\Services\AppointmentScheduler;
 
 class AppointmentController extends Controller
 {
@@ -24,8 +22,10 @@ class AppointmentController extends Controller
             'observation' => 'nullable|string|max:255'
         ]);
 
-        if($error = $this->validateDateTime($data['date'], $data['time'])) {
-            return $error;
+        if($error = $this->scheduler->findConflictMessage($data['date'], $data['time'])) {
+            return response()->json([
+                'message' => $error
+            ], 422);
         }
 
         $appointment = $request->user()->appointments()->create($data);
@@ -107,8 +107,10 @@ class AppointmentController extends Controller
             $date = $data['date'] ?? $appointment->date;
             $time = $data['time'] ?? $appointment->time;
 
-            if($error = $this->validateDateTime($date, $time, $appointment->id)) {
-                return $error;
+            if($error = $this->scheduler->findConflictMessage($date, $time, $appointment->id)) {
+                return response()->json([
+                    'message' => $error
+                ], 422);
             }
         }
 
@@ -131,27 +133,9 @@ class AppointmentController extends Controller
         }
     }
 
-    private function validateDateTime(string $date, string $time, ?int $ignoreId = null): ?JsonResponse
+    public function __construct(private AppointmentScheduler $scheduler)
     {
-        $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
-
-        if(Carbon::parse("$date $time")->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível agendar para uma data e horário no passado.'
-            ], 422);
-        }
-
-        $conflict = Appointment::where('date', $date)
-            ->where('time', $time) //busca por '14:00:00
-            ->where('status', '!=', AppointmentStatus::Cancelado->value)
-            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId))
-            ->exists();
         
-        if ($conflict) {
-            return response()->json([
-                'message' => 'Já existe agendamento para essa data e horário'
-            ], 422);
-        }
-        return null;
     }
+   
 }
