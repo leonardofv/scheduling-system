@@ -8,8 +8,8 @@ class Exame extends Model
 {
     protected $fillable = ['nome', 'valor'];
 
-    public function appointments()
+    public function agendamentos()
     {
-        return $this->hasMany(Appointment::class, 'exame_id');
+        return $this->hasMany(Agendamento::class, 'exame_id');
     }
 }

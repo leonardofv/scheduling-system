@@ -13,8 +13,8 @@ class Medico extends Model
         return $this->belongsTo(Especialidade::class, 'especialidade_id');
     }
 
-    public function appointments()
+    public function agendamentos()
     {
-        return $this->hasMany(Appointment::class, 'medico_id');
+        return $this->hasMany(Agendamento::class, 'medico_id');
     }
 }

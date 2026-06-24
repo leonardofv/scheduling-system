@@ -57,7 +57,7 @@ export default function AppointmentsPage() {
 
       if (modalState.mode === "delete" && modalState.appointment) {
         const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/appointments/${modalState.appointment.id}`,
+          `${process.env.NEXT_PUBLIC_API_URL}/api/agendamentos/${modalState.appointment.id}`,
           {
             method: "DELETE",
             headers: {

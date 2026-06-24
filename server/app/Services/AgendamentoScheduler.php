@@ -2,12 +2,12 @@
 
 namespace App\Services;
 
-use App\Enums\AppointmentStatus;
-use App\Models\Appointment;
+use App\Enums\AgendamentoStatus;
+use App\Models\Agendamento;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Builder;
 
-class AppointmentScheduler
+class AgendamentoScheduler
 {
     public function findConflictMessage(string $date, string $time, ?int $ignoreId = null): ?string
     {
@@ -17,9 +17,9 @@ class AppointmentScheduler
             return 'Não é possível agendar para uma data e horário no passado.';
         }
 
-        $conflict = Appointment::where('date', $date)
+        $conflict = Agendamento::where('date', $date)
             ->where('time', $time) //busca por '14:00:00
-            ->where('status', '!=', AppointmentStatus::Cancelado->value)
+            ->where('status', '!=', AgendamentoStatus::Cancelado->value)
             ->when($ignoreId, fn(Builder $query) => $query->where('id', '!=', $ignoreId))
             ->exists();
 

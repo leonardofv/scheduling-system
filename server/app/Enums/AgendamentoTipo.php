@@ -2,10 +2,9 @@
 
 namespace App\Enums;
 
-enum AppointmentType: string
+enum AgendamentoTipo: string
 {
     case Consulta = 'consulta';
     case Retorno = 'retorno';
     case Exame = 'exame';
-
 }

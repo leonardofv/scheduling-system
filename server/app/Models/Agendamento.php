@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\AppointmentStatus;
-use App\Enums\AppointmentType;
+use App\Enums\AgendamentoStatus;
+use App\Enums\AgendamentoTipo;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
 
 #[Fillable(['user_id', 'tipo', 'medico_id', 'exame_id', 'agendamento_origem_id', 'date', 'time', 'observation', 'status'])]
-class Appointment extends Model
+class Agendamento extends Model
 {
     use HasFactory;
     public function user()
@@ -31,19 +31,19 @@ class Appointment extends Model
 
     public function origin()
     {
-        return $this->belongsTo(Appointment::class, 'agendamento_origem_id');
+        return $this->belongsTo(Agendamento::class, 'agendamento_origem_id');
     }
 
     public function followUps()
     {
-        return $this->hasMany(Appointment::class, 'agendamento_origem_id');
+        return $this->hasMany(Agendamento::class, 'agendamento_origem_id');
     }
 
     protected function casts(): array
     {
         return [
-            'status' => AppointmentStatus::class,
-            'tipo' => AppointmentType::class,
+            'status' => AgendamentoStatus::class,
+            'tipo' => AgendamentoTipo::class,
         ];
     }
     //Normalização da hora para H:m:s

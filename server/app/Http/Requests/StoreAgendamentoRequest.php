@@ -5,7 +5,7 @@ namespace App\Http\Requests;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAppointmentRequest extends FormRequest
+class StoreAgendamentoRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -26,7 +26,7 @@ class StoreAppointmentRequest extends FormRequest
             'tipo' => 'required|in:consulta,retorno,exame',
             'medico_id' => 'required_if:tipo,consulta,retorno|exists:medicos,id',
             'exame_id' => 'required_if:tipo,exame|exists:exames,id',
-            'agendamento_origem_id' => 'required_if:tipo,retorno|exists:appointments,id',
+            'agendamento_origem_id' => 'required_if:tipo,retorno|exists:agendamentos,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
             'observation' => 'nullable|string|max:255',

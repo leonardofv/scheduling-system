@@ -2,19 +2,19 @@
 
 namespace App\Policies;
 
-use App\Models\Appointment;
+use App\Models\Agendamento;
 use App\Models\User;
 
-class AppointmentPolicy
+class AgendamentoPolicy
 {
-    public function update(User $user, Appointment $appointment): bool
+    public function update(User $user, Agendamento $agendamento): bool
     {
-        return $user->role === 'admin' || $appointment->user_id === $user->id;
+        return $user->role === 'admin' || $agendamento->user_id === $user->id;
     }
 
-    public function cancel(User $user, Appointment $appointment): bool
+    public function cancel(User $user, Agendamento $agendamento): bool
     {
-        return $user->role === 'admin' || $appointment->user_id === $user->id;
+        return $user->role === 'admin' || $agendamento->user_id === $user->id;
     }
 
     public function confirm(User $user): bool
@@ -26,7 +26,7 @@ class AppointmentPolicy
     {
         return $user->role === 'admin';
     }
-    
+
     public function markNoShow(User $user): bool
     {
         return $user->role === 'admin';
