@@ -126,6 +126,25 @@ class AppointmentController extends Controller
         }
     }
 
+    public function markNoShow(Appointment $appointment): JsonResponse
+    {
+        $this->authorize('markNoShow', $appointment);
+
+        if ($appointment->status !== AppointmentStatus::Confirmado) {
+            return response()->json([
+                'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
+            ], 409);
+        }
+        if (!$appointment->scheduleAt->isPast()) {
+            return response()->json([
+                'message' => 'Não é possível marcar falta antes do horário do agendamento'
+            ], 422);
+        }
+
+        $appointment->update(['status' => AppointmentStatus::Falta]);
+        return response()->json($appointment);
+    }
+
     public function __construct(private AppointmentScheduler $scheduler)
     {
         

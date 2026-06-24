@@ -33,6 +33,7 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function() {
     
     Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
     Route::patch('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm']);
+    Route::patch('/appointments/{appointment}/no-show', [AppointmentController::class, 'markNoShow']);
 });
 
 
