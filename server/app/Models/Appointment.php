@@ -6,10 +6,11 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Enums\AppointmentStatus;
+use App\Enums\AppointmentType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
 
-#[Fillable(['user_id', 'service_id', 'date', 'time', 'observation', 'status'])]
+#[Fillable(['user_id', 'tipo', 'medico_id', 'exame_id', 'agendamento_origem_id', 'date', 'time', 'observation', 'status'])]
 class Appointment extends Model
 {
     use HasFactory;
@@ -18,14 +19,31 @@ class Appointment extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function service()
+    public function doctor()
     {
-        return $this->belongsTo(Service::class);
+        return $this->belongsTo(Medico::class, 'medico_id');
     }
+
+    public function exam()
+    {
+        return $this->belongsTo(Exame::class, 'exame_id');
+    }
+
+    public function origin()
+    {
+        return $this->belongsTo(Appointment::class, 'agendamento_origem_id');
+    }
+
+    public function followUps()
+    {
+        return $this->hasMany(Appointment::class, 'agendamento_origem_id');
+    }
+
     protected function casts(): array
     {
         return [
             'status' => AppointmentStatus::class,
+            'tipo' => AppointmentType::class,
         ];
     }
     //Normalização da hora para H:m:s
