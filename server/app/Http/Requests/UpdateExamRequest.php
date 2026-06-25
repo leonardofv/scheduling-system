@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreExameRequest extends FormRequest
+class UpdateExamRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -14,8 +14,8 @@ class StoreExameRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'nome' => 'required|string|max:255',
-            'valor' => 'required|numeric|min:0',
+            'nome' => 'sometimes|required|string|max:255',
+            'valor' => 'sometimes|required|numeric|min:0',
         ];
     }
 }

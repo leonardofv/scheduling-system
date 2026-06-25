@@ -2,20 +2,20 @@
 
 namespace App\Policies;
 
-use App\Models\Medico;
+use App\Models\Specialty;
 use App\Models\User;
 
-class MedicoPolicy
+class SpecialtyPolicy
 {
     public function create(User $user): bool
     {
         return $user->role === 'admin';
     }
-    public function update(User $user, Medico $medico): bool
+    public function update(User $user, Specialty $specialty): bool
     {
         return $user->role === 'admin';
     }
-    public function delete(User $user, Medico $medico): bool
+    public function delete(User $user, Specialty $specialty): bool
     {
         return $user->role === 'admin';
     }

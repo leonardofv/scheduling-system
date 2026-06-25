@@ -4,7 +4,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 
-class UpdateExameRequest extends FormRequest
+class UpdateSpecialtyRequest extends FormRequest
 {
     public function authorize(): bool
     {
@@ -15,7 +15,7 @@ class UpdateExameRequest extends FormRequest
     {
         return [
             'nome' => 'sometimes|required|string|max:255',
-            'valor' => 'sometimes|required|numeric|min:0',
+            'descricao' => 'nullable|string|max:255',
         ];
     }
 }

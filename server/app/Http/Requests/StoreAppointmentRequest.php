@@ -2,12 +2,12 @@
 
 namespace App\Http\Requests;
 
-use App\Enums\AgendamentoTipo;
-use App\Models\Agendamento;
+use App\Enums\AppointmentType;
+use App\Models\Appointment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
-class StoreAgendamentoRequest extends FormRequest
+class StoreAppointmentRequest extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -35,8 +35,8 @@ class StoreAgendamentoRequest extends FormRequest
                     if (!$value) {
                         return;
                     }
-                    
-                    $origem = Agendamento::where('id', $value)
+
+                    $origem = Appointment::where('id', $value)
                         ->where('user_id', $this->user()->id)
                         ->first();
 
@@ -45,7 +45,7 @@ class StoreAgendamentoRequest extends FormRequest
                         return;
                     }
 
-                    if ($origem->tipo !== AgendamentoTipo::Consulta) {
+                    if ($origem->tipo !== AppointmentType::Consultation) {
                         $fail('O agendamento de origem deve ser uma consulta');
                         return;
                     }

@@ -4,12 +4,12 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Exame extends Model
+class Exam extends Model
 {
     protected $fillable = ['nome', 'valor'];
 
-    public function agendamentos()
+    public function appointments()
     {
-        return $this->hasMany(Agendamento::class, 'exame_id');
+        return $this->hasMany(Appointment::class, 'exame_id');
     }
 }

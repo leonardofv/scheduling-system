@@ -2,28 +2,28 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Agendamento;
+use App\Models\Appointment;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Exception;
-use App\Enums\AgendamentoStatus;
-use App\Services\AgendamentoScheduler;
-use App\Http\Requests\StoreAgendamentoRequest;
-use App\Http\Requests\UpdateAgendamentoRequest;
+use App\Enums\AppointmentStatus;
+use App\Services\AppointmentScheduler;
+use App\Http\Requests\StoreAppointmentRequest;
+use App\Http\Requests\UpdateAppointmentRequest;
 
-class AgendamentoController extends Controller
+class AppointmentController extends Controller
 {
     //registrar agendamento
-    public function store(StoreAgendamentoRequest $request): JsonResponse
+    public function store(StoreAppointmentRequest $request): JsonResponse
     {
         $data = $request->validated();
 
         if($error = $this->scheduler->findConflictMessage(
             $data['date'],
             $data['time'],
-            $data['medico_id'] ?? null, 
-            $data['exame_id'] ?? null, 
+            $data['medico_id'] ?? null,
+            $data['exame_id'] ?? null,
             $request->user()->id
             )) {
             return response()->json([
@@ -31,43 +31,43 @@ class AgendamentoController extends Controller
             ], 422);
         }
 
-        $agendamento = $request->user()->agendamentos()->create($data);
-        return response()->json($agendamento, 201);
+        $appointment = $request->user()->appointments()->create($data);
+        return response()->json($appointment, 201);
     }
 
     //confirmar agendamento
-    public function confirm(Agendamento $agendamento): JsonResponse
+    public function confirm(Appointment $appointment): JsonResponse
     {
-        $this->authorize('confirm', $agendamento);
+        $this->authorize('confirm', $appointment);
 
-        if($agendamento->status !== AgendamentoStatus::Pendente) {
+        if($appointment->status !== AppointmentStatus::Pending) {
             return response()->json([
                 'message' => 'Apenas agendamentos pendentes podem ser confirmados'
             ], 409);
         }
-        if($agendamento->scheduleAt->isPast()) {
+        if($appointment->scheduleAt->isPast()) {
             return response()->json([
                 'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
             ], 422);
         }
 
-        $agendamento->update(['status' => AgendamentoStatus::Confirmado]);
-        return response()->json($agendamento);
+        $appointment->update(['status' => AppointmentStatus::Confirmed]);
+        return response()->json($appointment);
     }
 
     //cancelar agendamento
-    public function cancel(Agendamento $agendamento): JsonResponse
+    public function cancel(Appointment $appointment): JsonResponse
     {
-        $this->authorize('cancel', $agendamento);
+        $this->authorize('cancel', $appointment);
 
-        if($agendamento->status === AgendamentoStatus::Cancelado) {
+        if($appointment->status === AppointmentStatus::Cancelled) {
             return response()->json([
                 'message' => 'Este agendamento já está cancelado'
             ], 409);
         }
 
-        $agendamento->update(['status' => AgendamentoStatus::Cancelado]);
-        return response()->json($agendamento);
+        $appointment->update(['status' => AppointmentStatus::Cancelled]);
+        return response()->json($appointment);
     }
 
     //listar agendamentos
@@ -75,20 +75,20 @@ class AgendamentoController extends Controller
     {
         $user = $request->user();
 
-        $agendamentos = Agendamento::query()
+        $appointments = Appointment::query()
             ->with(['user', 'doctor', 'exam'])
             ->when($user->role !== 'admin', fn ($query) => $query->where('user_id', $user->id))
             ->get();
 
-        return response()->json($agendamentos);
+        return response()->json($appointments);
     }
 
     //atualizar agendamento
-    public function update(UpdateAgendamentoRequest $request, Agendamento $agendamento): JsonResponse
+    public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
-        $this->authorize('update', $agendamento);
+        $this->authorize('update', $appointment);
 
-        if($agendamento->status === AgendamentoStatus::Cancelado) {
+        if($appointment->status === AppointmentStatus::Cancelled) {
             return response()->json([
                 'message' => 'Agendamentos cancelados não podem ser alterados'
             ], 409);
@@ -97,22 +97,22 @@ class AgendamentoController extends Controller
         $data = $request->validated();
 
         if(isset($data['date']) || isset($data['time'])) {
-            if($agendamento->status === AgendamentoStatus::Confirmado) {
+            if($appointment->status === AppointmentStatus::Confirmed) {
                 return response()->json([
                     'message' => 'Para alterar a data/hora de um agendamento confirmado, cancele e crie um novo'
                 ], 409);
             }
 
-            $date = $data['date'] ?? $agendamento->date;
-            $time = $data['time'] ?? $agendamento->time;
+            $date = $data['date'] ?? $appointment->date;
+            $time = $data['time'] ?? $appointment->time;
 
             if($error = $this->scheduler->findConflictMessage(
-                $date, 
-                $time, 
-                $agendamento->medico_id,
-                $agendamento->exame_id,
-                $agendamento->user_id,
-                $agendamento->id
+                $date,
+                $time,
+                $appointment->medico_id,
+                $appointment->exame_id,
+                $appointment->user_id,
+                $appointment->id
                 )) {
                 return response()->json([
                     'message' => $error
@@ -120,17 +120,17 @@ class AgendamentoController extends Controller
             }
         }
 
-        $agendamento->update($data);
-        return response()->json($agendamento);
+        $appointment->update($data);
+        return response()->json($appointment);
     }
 
     //excluir agendamento
-    public function destroy(Agendamento $agendamento): JsonResponse
+    public function destroy(Appointment $appointment): JsonResponse
     {
-        $this->authorize('delete', $agendamento);
+        $this->authorize('delete', $appointment);
 
         try {
-            $agendamento->delete();
+            $appointment->delete();
             return response()->json(["message" => "Agendamento excluído"], 200);
         }catch(Exception $e) {
 
@@ -139,26 +139,26 @@ class AgendamentoController extends Controller
         }
     }
 
-    public function markNoShow(Agendamento $agendamento): JsonResponse
+    public function markNoShow(Appointment $appointment): JsonResponse
     {
-        $this->authorize('markNoShow', $agendamento);
+        $this->authorize('markNoShow', $appointment);
 
-        if ($agendamento->status !== AgendamentoStatus::Confirmado) {
+        if ($appointment->status !== AppointmentStatus::Confirmed) {
             return response()->json([
                 'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
             ], 409);
         }
-        if (!$agendamento->scheduleAt->isPast()) {
+        if (!$appointment->scheduleAt->isPast()) {
             return response()->json([
                 'message' => 'Não é possível marcar falta antes do horário do agendamento'
             ], 422);
         }
 
-        $agendamento->update(['status' => AgendamentoStatus::Falta]);
-        return response()->json($agendamento);
+        $appointment->update(['status' => AppointmentStatus::NoShow]);
+        return response()->json($appointment);
     }
 
-    public function __construct(private AgendamentoScheduler $scheduler)
+    public function __construct(private AppointmentScheduler $scheduler)
     {
 
     }

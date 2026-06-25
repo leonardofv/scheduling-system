@@ -5,13 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Enums\AgendamentoStatus;
-use App\Enums\AgendamentoTipo;
+use App\Enums\AppointmentStatus;
+use App\Enums\AppointmentType;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Carbon\Carbon;
 
 #[Fillable(['user_id', 'tipo', 'medico_id', 'exame_id', 'agendamento_origem_id', 'date', 'time', 'observation', 'status'])]
-class Agendamento extends Model
+class Appointment extends Model
 {
     use HasFactory;
     public function user()
@@ -21,29 +21,29 @@ class Agendamento extends Model
 
     public function doctor()
     {
-        return $this->belongsTo(Medico::class, 'medico_id');
+        return $this->belongsTo(Doctor::class, 'medico_id');
     }
 
     public function exam()
     {
-        return $this->belongsTo(Exame::class, 'exame_id');
+        return $this->belongsTo(Exam::class, 'exame_id');
     }
 
     public function origin()
     {
-        return $this->belongsTo(Agendamento::class, 'agendamento_origem_id');
+        return $this->belongsTo(Appointment::class, 'agendamento_origem_id');
     }
 
     public function followUps()
     {
-        return $this->hasMany(Agendamento::class, 'agendamento_origem_id');
+        return $this->hasMany(Appointment::class, 'agendamento_origem_id');
     }
 
     protected function casts(): array
     {
         return [
-            'status' => AgendamentoStatus::class,
-            'tipo' => AgendamentoTipo::class,
+            'status' => AppointmentStatus::class,
+            'tipo' => AppointmentType::class,
         ];
     }
     //Normalização da hora para H:m:s

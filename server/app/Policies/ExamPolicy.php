@@ -2,20 +2,20 @@
 
 namespace App\Policies;
 
-use App\Models\Exame;
+use App\Models\Exam;
 use App\Models\User;
 
-class ExamePolicy
+class ExamPolicy
 {
     public function create(User $user): bool
     {
         return $user->role === 'admin';
     }
-    public function update(User $user, Exame $exame): bool
+    public function update(User $user, Exam $exam): bool
     {
         return $user->role === 'admin';
     }
-    public function delete(User $user, Exame $exame): bool
+    public function delete(User $user, Exam $exam): bool
     {
         return $user->role === 'admin';
     }
