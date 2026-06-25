@@ -24,8 +24,8 @@ class StoreAgendamentoRequest extends FormRequest
     {
         return [
             'tipo' => 'required|in:consulta,retorno,exame',
-            'medico_id' => 'required_if:tipo,consulta,retorno|exists:medicos,id',
-            'exame_id' => 'required_if:tipo,exame|exists:exames,id',
+            'medico_id' => 'required_if:tipo,consulta,retorno|prohibited_if:tipo,exame|exists:medicos,id',
+            'exame_id' => 'required_if:tipo,exame|prohibited_if:tipo,consulta,retorno|exists:exames,id',
             'agendamento_origem_id' => 'required_if:tipo,retorno|exists:agendamentos,id',
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',

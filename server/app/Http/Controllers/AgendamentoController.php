@@ -19,7 +19,13 @@ class AgendamentoController extends Controller
     {
         $data = $request->validated();
 
-        if($error = $this->scheduler->findConflictMessage($data['date'], $data['time'])) {
+        if($error = $this->scheduler->findConflictMessage(
+            $data['date'],
+            $data['time'],
+            $data['medico_id'] ?? null, 
+            $data['exame_id'] ?? null, 
+            $request->user()->id
+            )) {
             return response()->json([
                 'message' => $error
             ], 422);
@@ -100,7 +106,14 @@ class AgendamentoController extends Controller
             $date = $data['date'] ?? $agendamento->date;
             $time = $data['time'] ?? $agendamento->time;
 
-            if($error = $this->scheduler->findConflictMessage($date, $time, $agendamento->id)) {
+            if($error = $this->scheduler->findConflictMessage(
+                $date, 
+                $time, 
+                $agendamento->medico_id,
+                $agendamento->exame_id,
+                $agendamento->user_id,
+                $agendamento->id
+                )) {
                 return response()->json([
                     'message' => $error
                 ], 422);
