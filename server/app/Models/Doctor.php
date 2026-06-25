@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Doctor extends Model
 {
+    protected $table = 'medicos';
     protected $fillable = ['nome', 'crm', 'email', 'telefone', 'especialidade_id'];
 
     public function specialty()

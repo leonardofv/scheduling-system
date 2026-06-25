@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Exam extends Model
 {
+    protected $table = 'exames';
     protected $fillable = ['nome', 'valor'];
 
     public function appointments()
