@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
 use App\Models\Appointment;
 use Illuminate\Contracts\Validation\ValidationRule;
@@ -47,6 +48,16 @@ class StoreAppointmentRequest extends FormRequest
 
                     if ($origem->tipo !== AppointmentType::Consultation) {
                         $fail('O agendamento de origem deve ser uma consulta');
+                        return;
+                    }
+
+                    if ($origem->status !== AppointmentStatus::Confirmed) {
+                        $fail('O retorno só pode ser criado a partir de uma consulta já confirmada');
+                        return;
+                    }
+
+                    if (!$origem->scheduleAt->isPast()) {
+                        $fail('O retorno só pode ser criado após a data e horário da consulta de origem');
                         return;
                     }
 
