@@ -20,6 +20,7 @@ return new class extends Migration
             $table->foreignId('agendamento_origem_id')->nullable()->constrained('agendamentos')->onDelete('set null');
             $table->date('date');
             $table->time('time');
+            $table->index(['date', 'time'], 'agendamentos_date_time_index');
             $table->string('observation')->nullable();
             $table->string('status')->default('pendente');
             $table->timestamps();
