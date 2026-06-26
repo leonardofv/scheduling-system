@@ -11,6 +11,7 @@ class AppointmentScheduler
 {
     public function findConflictMessage(string $date, string $time, ?int $medicoId, ?int $exameId, ?int $userId, ?int $ignoreId = null): ?string
     {
+        $date = Carbon::parse($date)->format('Y-m-d');
         $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
 
         if (Carbon::parse("$date $time")->isPast()) {
