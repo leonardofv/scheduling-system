@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('medicos', function (Blueprint $table) {
             $table->id();
             $table->string('nome');
-            $table->string('crm');
+            $table->string('crm')->unique();
             $table->string('email')->unique()->nullable();
             $table->string('telefone')->nullable();
             $table->foreignId('especialidade_id')->constrained('especialidades');

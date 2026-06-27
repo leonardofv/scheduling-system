@@ -15,7 +15,7 @@ class StoreDoctorRequest extends FormRequest
     {
         return [
             'nome' => 'required|string|max:255',
-            'crm' => 'required|string|max:20',
+            'crm' => 'required|string|max:20|unique:medicos,crm',
             'email' => 'nullable|email|max:255|unique:medicos,email',
             'telefone' => 'nullable|string|max:20',
             'especialidade_id' => 'required|exists:especialidades,id',
