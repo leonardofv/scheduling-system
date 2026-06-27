@@ -27,7 +27,6 @@ class AppointmentController extends Controller
                 $data['date'],
                 $data['time'],
                 $data['medico_id'] ?? null,
-                $data['exame_id'] ?? null,
                 $request->user()->id
             );
             if ($conflict) {
@@ -124,7 +123,6 @@ class AppointmentController extends Controller
                     $date,
                     $time,
                     $appointment->medico_id,
-                    $appointment->exame_id,
                     $appointment->user_id,
                     $appointment->id
                 );

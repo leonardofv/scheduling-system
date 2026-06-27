@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Builder;
 
 class AppointmentScheduler
 {
-    public function findConflictMessage(string $date, string $time, ?int $medicoId, ?int $exameId, ?int $userId, ?int $ignoreId = null): ?string
+    public function findConflictMessage(string $date, string $time, ?int $medicoId, ?int $userId, ?int $ignoreId = null): ?string
     {
         $date = Carbon::parse($date)->format('Y-m-d');
         $time = Carbon::parse($time)->format('H:i:s'); //normalizar horário
@@ -24,15 +24,14 @@ class AppointmentScheduler
             ->lockForUpdate()
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId));
 
-        if ($medicoId || $exameId) {
-            $resourceConflict = $baseQuery()
-                ->where(function (Builder $query) use ($medicoId, $exameId) {
-                    $query->when($medicoId, fn (Builder $q) => $q->orWhere('medico_id', $medicoId))
-                        ->when($exameId, fn (Builder $q) => $q->orWhere('exame_id', $exameId));
-                })
+        // Médico atende um paciente por vez. Exame não é recurso exclusivo,
+        // então não gera conflito entre pacientes diferentes.
+        if ($medicoId) {
+            $doctorConflict = $baseQuery()
+                ->where('medico_id', $medicoId)
                 ->exists();
-            if ($resourceConflict) {
-                return 'Já existe agendamento para esse médico/exame nessa data e horário';
+            if ($doctorConflict) {
+                return 'Já existe agendamento para esse médico nessa data e horário';
             }
         }
 

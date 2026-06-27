@@ -35,7 +35,6 @@ class ConflictDateFormatTest extends TestCase
             '2026-07-01T00:00:00.000Z',
             '14:30',
             $doctor->id,
-            null,
             999999
         );
 
