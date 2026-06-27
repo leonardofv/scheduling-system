@@ -31,6 +31,7 @@ class StoreAppointmentRequest extends FormRequest
             'exame_id' => 'required_if:tipo,exame|prohibited_if:tipo,consulta,retorno|exists:exames,id',
             'agendamento_origem_id' => [
                 'required_if:tipo,retorno',
+                'prohibited_unless:tipo,retorno',   // bloqueia o campo quando tipo for diferente de retorno
                 'exists:agendamentos,id',
                 function ($attribute, $value, $fail) {
                     if (!$value) {
