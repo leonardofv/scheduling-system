@@ -26,4 +26,9 @@ class AppointmentPolicy
     {
         return $user->role === 'admin';
     }
+
+    public function markNoShow(User $user): bool
+    {
+        return $user->role === 'admin';
+    }
 }

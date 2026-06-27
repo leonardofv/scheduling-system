@@ -2,7 +2,9 @@
 
 use App\Http\Controllers\AppointmentController;
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\ServiceController;
+use App\Http\Controllers\SpecialtyController;
+use App\Http\Controllers\ExamController;
+use App\Http\Controllers\DoctorController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -16,24 +18,33 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
-    Route::get('/services', [ServiceController::class, 'list']);
-    Route::post('/appointments', [AppointmentController::class, 'store']);
-    Route::get('/appointments', [AppointmentController::class, 'list']);
-    Route::put('/appointments/{appointment}', [AppointmentController::class, 'update']);
-    Route::patch('/appointments/{appointment}/cancel', [AppointmentController::class, 'cancel']);
+    Route::post('/agendamentos', [AppointmentController::class, 'store']);
+    Route::get('/agendamentos', [AppointmentController::class, 'list']);
+    Route::put('/agendamentos/{appointment}', [AppointmentController::class, 'update']);
+    Route::patch('/agendamentos/{appointment}/cancel', [AppointmentController::class, 'cancel']);
+    Route::get('/especialidades', [SpecialtyController::class, 'list']);
+    Route::get('/medicos', [DoctorController::class, 'list']);
+    Route::get('/exames', [ExamController::class, 'list']);
 });
 
 //Usuário Admin
 Route::middleware(['auth:sanctum', 'admin'])->group(function() {
 
     Route::get('/users', [AuthController::class, 'users']);
-    Route::post('/services', [ServiceController::class, 'store']);
-    Route::put('/services/{service}', [ServiceController::class, 'update']);
-    Route::delete('/services/{service}', [ServiceController::class, 'destroy']);
-    
-    Route::delete('/appointments/{appointment}', [AppointmentController::class, 'destroy']);
-    Route::patch('/appointments/{appointment}/confirm', [AppointmentController::class, 'confirm']);
+
+    Route::delete('/agendamentos/{appointment}', [AppointmentController::class, 'destroy']);
+    Route::patch('/agendamentos/{appointment}/confirm', [AppointmentController::class, 'confirm']);
+    Route::patch('/agendamentos/{appointment}/no-show', [AppointmentController::class, 'markNoShow']);
+
+    Route::post('/especialidades', [SpecialtyController::class, 'store']);
+    Route::put('/especialidades/{specialty}', [SpecialtyController::class, 'update']);
+    Route::delete('/especialidades/{specialty}', [SpecialtyController::class, 'destroy']);
+
+    Route::post('/medicos', [DoctorController::class, 'store']);
+    Route::put('/medicos/{doctor}', [DoctorController::class, 'update']);
+    Route::delete('/medicos/{doctor}', [DoctorController::class, 'destroy']);
+
+    Route::post('/exames', [ExamController::class, 'store']);
+    Route::put('/exames/{exam}', [ExamController::class, 'update']);
+    Route::delete('/exames/{exam}', [ExamController::class, 'destroy']);
 });
-
-
-
