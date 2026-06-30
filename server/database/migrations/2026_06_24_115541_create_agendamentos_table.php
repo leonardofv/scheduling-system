@@ -23,6 +23,8 @@ return new class extends Migration
             $table->index(['date', 'time'], 'agendamentos_date_time_index');
             $table->string('observation')->nullable();
             $table->string('status')->default('pendente');
+            $table->string('forma_pagamento')->default('particular');
+            $table->foreignId('plano_id')->nullable()->constrained('planos_saude');
             $table->timestamps();
         });
     }

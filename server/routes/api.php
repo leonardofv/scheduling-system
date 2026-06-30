@@ -5,6 +5,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\HealthPlanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -25,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/especialidades', [SpecialtyController::class, 'list']);
     Route::get('/medicos', [DoctorController::class, 'list']);
     Route::get('/exames', [ExamController::class, 'list']);
+    Route::get('/planos-saude', [HealthPlanController::class, 'list']);
 });
 
 //Usuário Admin

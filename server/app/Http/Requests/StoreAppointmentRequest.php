@@ -7,6 +7,7 @@ use App\Enums\AppointmentType;
 use App\Models\Appointment;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAppointmentRequest extends FormRequest
 {
@@ -65,7 +66,13 @@ class StoreAppointmentRequest extends FormRequest
                     if ((int) $origem->medico_id !== (int) $this->input('medico_id')) {
                         $fail('O retorno deve ser com o mesmo médico da consulta de origem');
                     }
-                }
+                },
+            ],
+            'forma_pagamento' => 'required|in:particular,plano',
+            'plano_id' => [
+                'required_if:forma_pagamento,plano',
+                'prohibited_unless:forma_pagamento,plano',
+                Rule::exists('planos_saude', 'id')->where('ativo', true), //garante escolher plano aceito pelo hospital
             ],
             'date' => 'required|date',
             'time' => 'required|date_format:H:i',
