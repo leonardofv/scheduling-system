@@ -10,4 +10,9 @@ class HealthPlanPolicy
     {
         return $user->role === 'admin';
     }
+
+    public function update(User $user, HealthPlan $healthPlan): bool
+    {
+        return $user->role === 'admin';
+    }
 }
