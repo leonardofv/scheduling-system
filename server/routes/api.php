@@ -49,4 +49,6 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function() {
     Route::post('/exames', [ExamController::class, 'store']);
     Route::put('/exames/{exam}', [ExamController::class, 'update']);
     Route::delete('/exames/{exam}', [ExamController::class, 'destroy']);
+
+    Route::post('/planos-saude', [HealthPlanController::class, 'store']);
 });
