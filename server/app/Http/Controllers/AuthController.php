@@ -46,8 +46,8 @@ class AuthController extends Controller
         return response()->json(['user' => new UserResource($user), 'token' => $token]);
     }
 
-    public function users(): JsonResponse
+    public function users()
     {
-        return response()->json(UserResource::collection(User::all()));
+        return UserResource::collection(User::paginate(15));
     }
 }

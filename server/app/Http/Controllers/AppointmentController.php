@@ -88,7 +88,8 @@ class AppointmentController extends Controller
         $appointments = Appointment::query()
             ->with(['user', 'doctor', 'exam'])
             ->when($user->role !== 'admin', fn($query) => $query->where('user_id', $user->id))
-            ->get();
+            ->latest('date')
+            ->paginate(15);
 
         return response()->json($appointments);
     }
