@@ -15,4 +15,9 @@ class HealthPlanPolicy
     {
         return $user->role === 'admin';
     }
+
+    public function delete(User $user, HealthPlan $healthPlan): bool
+    {  
+        return $user->role === 'admin';
+    }
 }

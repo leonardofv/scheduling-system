@@ -15,4 +15,9 @@ class HealthPlan extends Model
     {
         return ['ativo' => 'boolean'];
     }
+
+    public function appointments()
+    {
+        return $this->hasMany(Appointment::class, 'plano_id');
+    }
 }

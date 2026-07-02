@@ -52,4 +52,6 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function() {
 
     Route::post('/planos-saude', [HealthPlanController::class, 'store']);
     Route::put('/planos-saude/{healthPlan}', [HealthPlanController::class, 'update']);
+    Route::get('/planos-saude/all', [HealthPlanController::class, 'listAll']);
+    Route::delete('/planos-saude/{healthPlan}', [HealthPlanController::class, 'destroy']);
 });
