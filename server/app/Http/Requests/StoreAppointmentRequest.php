@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
 use App\Models\Appointment;
+use App\Services\AppointmentScheduler;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -66,7 +67,23 @@ class StoreAppointmentRequest extends FormRequest
                     if ((int) $origem->medico_id !== (int) $this->input('medico_id')) {
                         $fail('O retorno deve ser com o mesmo médico da consulta de origem');
                     }
-                },
+
+                    //janela de validade do retorno
+                    $violation = app(AppointmentScheduler::class)
+                        ->findFollowUpWindowViolation($origem, $this->input('date'));
+                    if ($violation) {
+                        $fail($violation);
+                        return;
+                    }
+
+                    // um retorno ativo por consulta
+                    $hasActiveFollowUp = $origem->followUps()
+                        ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                        ->exists();
+                    if ($hasActiveFollowUp) {
+                        $fail('Essa consulta já possui um retorno agendado');
+                    }
+                }
             ],
             'forma_pagamento' => 'required|in:particular,plano',
             'plano_id' => [
