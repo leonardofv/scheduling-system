@@ -21,7 +21,6 @@ class AppointmentScheduler
         $baseQuery = fn () => Appointment::where('date', $date)
             ->where('time', $time)
             ->where('status', '!=', AppointmentStatus::Cancelled->value)
-            ->lockForUpdate()
             ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId));
 
         // Médico atende um paciente por vez. Exame não é recurso exclusivo,

@@ -11,6 +11,7 @@ use App\Enums\AppointmentStatus;
 use App\Services\AppointmentScheduler;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use Illuminate\Database\UniqueConstraintViolationException;
 use Illuminate\Support\Facades\DB;
 
 
@@ -22,19 +23,25 @@ class AppointmentController extends Controller
         $data = $request->validated();
         $appointment = null;
 
-        $error = DB::transaction(function () use ($data, $request, &$appointment) {
-            $conflict = $this->scheduler->findConflictMessage(
-                $data['date'],
-                $data['time'],
-                $data['medico_id'] ?? null,
-                $request->user()->id
-            );
-            if ($conflict) {
-                return $conflict;
-            }
-            $appointment = $request->user()->appointments()->create($data);
-            return null;
-        });
+        try {
+            $error = DB::transaction(function () use ($data, $request, &$appointment) {
+                $conflict = $this->scheduler->findConflictMessage(
+                    $data['date'],
+                    $data['time'],
+                    $data['medico_id'] ?? null,
+                    $request->user()->id
+                );
+                if ($conflict) {
+                    return $conflict;
+                }
+                $appointment = $request->user()->appointments()->create($data);
+                return null;
+            });
+        } catch(UniqueConstraintViolationException) {
+            return response()->json([
+                'message' => 'Esse horário foi preenchido recentemente.'
+            ], 409);
+        }
 
         if ($error) {
             return response()->json([
@@ -116,28 +123,32 @@ class AppointmentController extends Controller
             ], 409);
         }
 
-        $error = DB::transaction(function () use ($data, $appointment, $changingSchedule) {
-            if ($changingSchedule) {
-
-                $date = $data['date'] ?? $appointment->date;
-                $time = $data['time'] ?? $appointment->time;
-
-                $conflict = $this->scheduler->findConflictMessage(
-                    $date,
-                    $time,
-                    $appointment->medico_id,
-                    $appointment->user_id,
-                    $appointment->id
-                );
-
-                if ($conflict) {
-                    return $conflict;
+        try {
+            $error = DB::transaction(function () use ($data, $appointment, $changingSchedule) {
+                if ($changingSchedule) {
+                    $date = $data['date'] ?? $appointment->date;
+                    $time = $data['time'] ?? $appointment->time;
+                    
+                    $conflict = $this->scheduler->findConflictMessage(
+                        $date,
+                        $time,
+                        $appointment->medico_id,
+                        $appointment->user_id,
+                        $appointment->id
+                    );
+    
+                    if ($conflict) {
+                        return $conflict;
+                    }
                 }
-            }
-
-            $appointment->update($data);
-            return null;
-        });
+                $appointment->update($data);
+                return null;
+            });
+        } catch(UniqueConstraintViolationException) {
+            return response()->json([
+                'message' => 'Esse horário foi preenchido recentemente.'
+            ], 409);
+        }
 
         if ($error) {
             return response()->json([

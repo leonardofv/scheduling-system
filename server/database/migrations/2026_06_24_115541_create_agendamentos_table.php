@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -27,6 +28,19 @@ return new class extends Migration
             $table->foreignId('plano_id')->nullable()->constrained('planos_saude');
             $table->timestamps();
         });
+        // Partial unique indexes: enforce slot exclusivity at the DB level.
+        // Cancelled appointments free the slot, so they are excluded.
+        DB::statement(<<<'SQL'
+            CREATE UNIQUE INDEX agendamentos_medico_slot_unique
+            ON agendamentos (medico_id, "date", "time")
+            WHERE status != 'cancelado'
+        SQL);
+
+        DB::statement(<<<'SQL'
+            CREATE UNIQUE INDEX agendamentos_user_slot_unique
+            ON agendamentos (user_id, "date", "time")
+            WHERE status != 'cancelado'
+        SQL);
     }
 
     /**
