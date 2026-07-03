@@ -89,6 +89,8 @@ class AppointmentController extends Controller
             ->with(['user', 'doctor', 'exam'])
             ->when($user->role !== 'admin', fn($query) => $query->where('user_id', $user->id))
             ->latest('date')
+            ->orderBy('time', 'desc')
+            ->orderBy('id', 'desc')
             ->paginate(15);
 
         return response()->json($appointments);
