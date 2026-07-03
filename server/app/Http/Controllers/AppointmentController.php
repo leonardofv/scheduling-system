@@ -82,7 +82,11 @@ class AppointmentController extends Controller
                 'message' => 'Este agendamento já está cancelado'
             ], 409);
         }
-
+        if (!in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed], true)) {
+            return response()->json([
+                'message' => 'Apenas agendamentos pendentes ou confirmados podem ser cancelados'
+            ], 409);
+        }
         $appointment->update(['status' => AppointmentStatus::Cancelled]);
         return response()->json($appointment);
     }
