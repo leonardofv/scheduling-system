@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreDoctorRequest;
 use App\Http\Requests\UpdateDoctorRequest;
+use Illuminate\Database\QueryException;
 
 class DoctorController extends Controller
 {
@@ -39,9 +40,17 @@ class DoctorController extends Controller
         try {
             $doctor->delete();
             return response()->json(["message" => "Médico excluído com sucesso"], 200);
+        } catch (QueryException $e) {
+            if (str_starts_with($e->getCode(), '23')) {
+                return response()->json([
+                    'message' => 'Não é possível excluir: este médico possui agendamentos vinculados.'
+                ], 409);
+            }
+            Log::error('Erro ao excluir médico: ' . $e->getMessage() . $e->getFile());
+            return response()->json(['message' => 'Erro ao excluir médico'], 500);
         } catch (Exception $e) {
             Log::error('Erro ao excluir médico: ' . $e->getMessage() . $e->getFile());
-            return response()->json(["message" => "Erro ao excluir médico"], 500);
+            return response()->json(['message' => 'Erro ao excluir médico'], 500);
         }
     }
 }

@@ -8,6 +8,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreSpecialtyRequest;
 use App\Http\Requests\UpdateSpecialtyRequest;
+use Illuminate\Database\QueryException;
 
 class SpecialtyController extends Controller
 {
@@ -39,7 +40,15 @@ class SpecialtyController extends Controller
         try {
             $specialty->delete();
             return response()->json(["message" => "Especialidade excluída com sucesso"], 200);
-        } catch (Exception $e) {
+        } catch (QueryException $e) {
+            if (str_starts_with($e->getCode(), '23')) {
+                return response()->json([
+                    'message' => 'Não é possível excluir: esta especialidade possui médicos vinculados'
+                ], 409);
+            }
+            Log::error('Erro ao excluir especialidade: ' . $e->getMessage() . $e->getFile());
+            return response()->json(["message" => "Erro ao excluir especialidade"], 500);
+        } catch(Exception $e) {
             Log::error('Erro ao excluir especialidade: ' . $e->getMessage() . $e->getFile());
             return response()->json(["message" => "Erro ao excluir especialidade"], 500);
         }
