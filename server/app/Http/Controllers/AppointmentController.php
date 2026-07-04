@@ -112,8 +112,7 @@ class AppointmentController extends Controller
     //atualizar agendamento
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
-        $this->authorize('update', $appointment);
-
+        // autorização feita no authorize() do UpdateAppointmentRequest, antes da validação
         if ($appointment->status === AppointmentStatus::Cancelled) {
             return response()->json([
                 'message' => 'Agendamentos cancelados não podem ser alterados'

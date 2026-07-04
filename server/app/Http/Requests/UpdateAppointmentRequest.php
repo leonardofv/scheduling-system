@@ -4,6 +4,7 @@ namespace App\Http\Requests;
 
 use App\Enums\AppointmentType;
 use App\Services\AppointmentScheduler;
+use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 
@@ -14,7 +15,13 @@ class UpdateAppointmentRequest extends FormRequest
      */
     public function authorize(): bool
     {
-        return true;
+        // antes das rules: só o dono (ou admin) enxerga erros de validação
+        return $this->user()->can('update', $this->route('appointment'));
+    }
+
+    protected function failedAuthorization(): void
+    {
+        throw new AuthorizationException('Você não tem permissão para alterar este agendamento');
     }
 
     /**
