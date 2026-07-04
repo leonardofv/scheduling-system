@@ -66,6 +66,7 @@ class StoreAppointmentRequest extends FormRequest
 
                     if ((int) $origem->medico_id !== (int) $this->input('medico_id')) {
                         $fail('O retorno deve ser com o mesmo médico da consulta de origem');
+                        return;
                     }
 
                     //janela de validade do retorno
