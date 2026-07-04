@@ -41,14 +41,14 @@ class AppointmentScheduler
         if ($patientConflict) {
             return 'Você já possui um agendamento para essa data e horário';
         }
-
+        
         return null;
     }
 
     public function findFollowUpWindowViolation(Appointment $origin, ?string $followUpDate): ?string
     {
         if (!$followUpDate || !strtotime($followUpDate)) {
-            return null; // date ausente/inválida: a rule 'date' do request reporta o erro
+            return null; // a rule 'date_format' do request reporta o erro
         }
 
         $windowDays = config('scheduling.follow_up_window_days');

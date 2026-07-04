@@ -91,7 +91,7 @@ class StoreAppointmentRequest extends FormRequest
                 'prohibited_unless:forma_pagamento,plano',
                 Rule::exists('planos_saude', 'id')->where('ativo', true), //garante escolher plano aceito pelo hospital
             ],
-            'date' => 'required|date',
+            'date' => 'required|date_format:Y-m-d',
             'time' => 'required|date_format:H:i',
             'observation' => 'nullable|string|max:255',
         ];
