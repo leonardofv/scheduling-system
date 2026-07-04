@@ -59,19 +59,24 @@ class AppointmentController extends Controller
     {
         $this->authorize('confirm', $appointment);
 
-        if ($appointment->status !== AppointmentStatus::Pending) {
-            return response()->json([
-                'message' => 'Apenas agendamentos pendentes podem ser confirmados'
-            ], 409);
-        }
-        if ($appointment->scheduleAt->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
-            ], 422);
-        }
+        return DB::transaction(function () use ($appointment) {
+            // relê com lock: o status checado é o mesmo que será gravado
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-        $appointment->update(['status' => AppointmentStatus::Confirmed]);
-        return response()->json($appointment);
+            if ($appointment->status !== AppointmentStatus::Pending) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos pendentes podem ser confirmados'
+                ], 409);
+            }
+            if ($appointment->scheduleAt->isPast()) {
+                return response()->json([
+                    'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
+                ], 422);
+            }
+
+            $appointment->update(['status' => AppointmentStatus::Confirmed]);
+            return response()->json($appointment);
+        });
     }
 
     //cancelar agendamento
@@ -79,18 +84,22 @@ class AppointmentController extends Controller
     {
         $this->authorize('cancel', $appointment);
 
-        if ($appointment->status === AppointmentStatus::Cancelled) {
-            return response()->json([
-                'message' => 'Este agendamento já está cancelado'
-            ], 409);
-        }
-        if (!in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed], true)) {
-            return response()->json([
-                'message' => 'Apenas agendamentos pendentes ou confirmados podem ser cancelados'
-            ], 409);
-        }
-        $appointment->update(['status' => AppointmentStatus::Cancelled]);
-        return response()->json($appointment);
+        return DB::transaction(function () use ($appointment) {
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
+
+            if ($appointment->status === AppointmentStatus::Cancelled) {
+                return response()->json([
+                    'message' => 'Este agendamento já está cancelado'
+                ], 409);
+            }
+            if (!in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed], true)) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos pendentes ou confirmados podem ser cancelados'
+                ], 409);
+            }
+            $appointment->update(['status' => AppointmentStatus::Cancelled]);
+            return response()->json($appointment);
+        });
     }
 
     //listar agendamentos
@@ -183,19 +192,23 @@ class AppointmentController extends Controller
     {
         $this->authorize('markNoShow', $appointment);
 
-        if ($appointment->status !== AppointmentStatus::Confirmed) {
-            return response()->json([
-                'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
-            ], 409);
-        }
-        if (!$appointment->scheduleAt->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível marcar falta antes do horário do agendamento'
-            ], 422);
-        }
+        return DB::transaction(function () use ($appointment) {
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-        $appointment->update(['status' => AppointmentStatus::NoShow]);
-        return response()->json($appointment);
+            if ($appointment->status !== AppointmentStatus::Confirmed) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
+                ], 409);
+            }
+            if (!$appointment->scheduleAt->isPast()) {
+                return response()->json([
+                    'message' => 'Não é possível marcar falta antes do horário do agendamento'
+                ], 422);
+            }
+
+            $appointment->update(['status' => AppointmentStatus::NoShow]);
+            return response()->json($appointment);
+        });
     }
 
     public function __construct(private AppointmentScheduler $scheduler) {}
