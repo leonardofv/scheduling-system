@@ -37,10 +37,12 @@ class AppointmentController extends Controller
                 $appointment = $request->user()->appointments()->create($data);
                 return null;
             });
-        } catch(UniqueConstraintViolationException) {
-            return response()->json([
-                'message' => 'Esse horário foi preenchido recentemente.'
-            ], 409);
+        } catch(UniqueConstraintViolationException $e) {
+            $message = str_contains($e->getMessage(), 'agendamento_origem_id') || str_contains($e->getMessage(), 'agendamentos_follow_up_unique') ? 
+            'Essa consulta já possui um retorno agendado' : 
+            'Esse horário foi preenchido recentemente';
+
+            return response()->json(['message' => $message], 409);
         }
 
         if ($error) {

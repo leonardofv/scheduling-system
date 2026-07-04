@@ -41,6 +41,13 @@ return new class extends Migration
             ON agendamentos (user_id, "date", "time")
             WHERE status != 'cancelado'
         SQL);
+
+        // Um retorno ativo por consulta de origem; cancelados liberam.
+        DB::statement(<<<'SQL'
+            CREATE UNIQUE INDEX agendamentos_follow_up_unique
+            ON agendamentos (agendamento_origem_id)
+            WHERE status != 'cancelado' AND agendamento_origem_id IS NOT NULL
+        SQL);
     }
 
     /**
