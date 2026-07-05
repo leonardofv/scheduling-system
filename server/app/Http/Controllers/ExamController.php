@@ -8,7 +8,9 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use App\Http\Requests\StoreExamRequest;
 use App\Http\Requests\UpdateExamRequest;
+use App\Http\Resources\ExamResource;
 use Illuminate\Database\QueryException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 
 class ExamController extends Controller
 {
@@ -17,20 +19,20 @@ class ExamController extends Controller
         $this->authorize('create', Exam::class);
 
         $exam = Exam::create($request->validated());
-        return response()->json($exam, 201);
+        return (new ExamResource($exam))->response()->setStatusCode(201);
     }
 
-    public function list(): JsonResponse
+    public function list(): AnonymousResourceCollection
     {
-        return response()->json(Exam::all());
+        return ExamResource::collection(Exam::all());
     }
 
-    public function update(UpdateExamRequest $request, Exam $exam): JsonResponse
+    public function update(UpdateExamRequest $request, Exam $exam): ExamResource
     {
         $this->authorize('update', $exam);
 
         $exam->update($request->validated());
-        return response()->json($exam);
+        return new ExamResource($exam);
     }
 
     public function destroy(Exam $exam): JsonResponse

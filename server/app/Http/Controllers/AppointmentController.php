@@ -11,7 +11,9 @@ use App\Enums\AppointmentStatus;
 use App\Services\AppointmentScheduler;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Resources\AppointmentResource;
 use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 
 
@@ -51,7 +53,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        return response()->json($appointment, 201);
+        return (new AppointmentResource($appointment))->response()->setStatusCode(201);
     }
 
     //confirmar agendamento
@@ -75,7 +77,7 @@ class AppointmentController extends Controller
             }
 
             $appointment->update(['status' => AppointmentStatus::Confirmed]);
-            return response()->json($appointment);
+            return (new AppointmentResource($appointment))->response();
         });
     }
 
@@ -98,12 +100,12 @@ class AppointmentController extends Controller
                 ], 409);
             }
             $appointment->update(['status' => AppointmentStatus::Cancelled]);
-            return response()->json($appointment);
+            return (new AppointmentResource($appointment))->response();
         });
     }
 
     //listar agendamentos
-    public function list(Request $request): JsonResponse
+    public function list(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
@@ -115,7 +117,7 @@ class AppointmentController extends Controller
             ->orderBy('id', 'desc')
             ->paginate(15);
 
-        return response()->json($appointments);
+        return AppointmentResource::collection($appointments);
     }
 
     //atualizar agendamento
@@ -170,7 +172,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        return response()->json($appointment);
+        return (new AppointmentResource($appointment))->response();
     }
 
     //excluir agendamento
@@ -207,7 +209,7 @@ class AppointmentController extends Controller
             }
 
             $appointment->update(['status' => AppointmentStatus::NoShow]);
-            return response()->json($appointment);
+            return (new AppointmentResource($appointment))->response();
         });
     }
 
