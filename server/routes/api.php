@@ -5,16 +5,18 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\DoctorController;
+use App\Http\Controllers\HealthPlanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas
-Route::post('/register', [AuthController::class, 'register']);
-Route::post('/login', [AuthController::class, 'login']);
+Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
+Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
 
 //Qualquer usuário autenticado
 Route::middleware('auth:sanctum')->group(function() {
 
+    Route::post('/logout', [AuthController::class, 'logout']);
     Route::get('/user', function (Request $request) {
         return $request->user();
     });
@@ -25,6 +27,7 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/especialidades', [SpecialtyController::class, 'list']);
     Route::get('/medicos', [DoctorController::class, 'list']);
     Route::get('/exames', [ExamController::class, 'list']);
+    Route::get('/planos-saude', [HealthPlanController::class, 'list']);
 });
 
 //Usuário Admin
@@ -47,4 +50,9 @@ Route::middleware(['auth:sanctum', 'admin'])->group(function() {
     Route::post('/exames', [ExamController::class, 'store']);
     Route::put('/exames/{exam}', [ExamController::class, 'update']);
     Route::delete('/exames/{exam}', [ExamController::class, 'destroy']);
+
+    Route::post('/planos-saude', [HealthPlanController::class, 'store']);
+    Route::put('/planos-saude/{healthPlan}', [HealthPlanController::class, 'update']);
+    Route::get('/planos-saude/all', [HealthPlanController::class, 'listAll']);
+    Route::delete('/planos-saude/{healthPlan}', [HealthPlanController::class, 'destroy']);
 });

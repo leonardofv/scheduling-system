@@ -11,6 +11,9 @@ use App\Enums\AppointmentStatus;
 use App\Services\AppointmentScheduler;
 use App\Http\Requests\StoreAppointmentRequest;
 use App\Http\Requests\UpdateAppointmentRequest;
+use App\Http\Resources\AppointmentResource;
+use Illuminate\Database\UniqueConstraintViolationException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
 use Illuminate\Support\Facades\DB;
 
 
@@ -22,19 +25,27 @@ class AppointmentController extends Controller
         $data = $request->validated();
         $appointment = null;
 
-        $error = DB::transaction(function () use ($data, $request, &$appointment) {
-            $conflict = $this->scheduler->findConflictMessage(
-                $data['date'],
-                $data['time'],
-                $data['medico_id'] ?? null,
-                $request->user()->id
-            );
-            if ($conflict) {
-                return $conflict;
-            }
-            $appointment = $request->user()->appointments()->create($data);
-            return null;
-        });
+        try {
+            $error = DB::transaction(function () use ($data, $request, &$appointment) {
+                $conflict = $this->scheduler->findConflictMessage(
+                    $data['date'],
+                    $data['time'],
+                    $data['medico_id'] ?? null,
+                    $request->user()->id
+                );
+                if ($conflict) {
+                    return $conflict;
+                }
+                $appointment = $request->user()->appointments()->create($data);
+                return null;
+            });
+        } catch(UniqueConstraintViolationException $e) {
+            $message = str_contains($e->getMessage(), 'agendamento_origem_id') || str_contains($e->getMessage(), 'agendamentos_follow_up_unique') ? 
+            'Essa consulta já possui um retorno agendado' : 
+            'Esse horário foi preenchido recentemente';
+
+            return response()->json(['message' => $message], 409);
+        }
 
         if ($error) {
             return response()->json([
@@ -42,7 +53,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        return response()->json($appointment, 201);
+        return (new AppointmentResource($appointment))->response()->setStatusCode(201);
     }
 
     //confirmar agendamento
@@ -50,19 +61,24 @@ class AppointmentController extends Controller
     {
         $this->authorize('confirm', $appointment);
 
-        if ($appointment->status !== AppointmentStatus::Pending) {
-            return response()->json([
-                'message' => 'Apenas agendamentos pendentes podem ser confirmados'
-            ], 409);
-        }
-        if ($appointment->scheduleAt->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
-            ], 422);
-        }
+        return DB::transaction(function () use ($appointment) {
+            // relê com lock: o status checado é o mesmo que será gravado
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-        $appointment->update(['status' => AppointmentStatus::Confirmed]);
-        return response()->json($appointment);
+            if ($appointment->status !== AppointmentStatus::Pending) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos pendentes podem ser confirmados'
+                ], 409);
+            }
+            if ($appointment->scheduleAt->isPast()) {
+                return response()->json([
+                    'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
+                ], 422);
+            }
+
+            $appointment->update(['status' => AppointmentStatus::Confirmed]);
+            return (new AppointmentResource($appointment))->response();
+        });
     }
 
     //cancelar agendamento
@@ -70,37 +86,53 @@ class AppointmentController extends Controller
     {
         $this->authorize('cancel', $appointment);
 
-        if ($appointment->status === AppointmentStatus::Cancelled) {
-            return response()->json([
-                'message' => 'Este agendamento já está cancelado'
-            ], 409);
-        }
+        return DB::transaction(function () use ($appointment) {
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-        $appointment->update(['status' => AppointmentStatus::Cancelled]);
-        return response()->json($appointment);
+            if ($appointment->status === AppointmentStatus::Cancelled) {
+                return response()->json([
+                    'message' => 'Este agendamento já está cancelado'
+                ], 409);
+            }
+            if (!in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed], true)) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos pendentes ou confirmados podem ser cancelados'
+                ], 409);
+            }
+            $appointment->update(['status' => AppointmentStatus::Cancelled]);
+            return (new AppointmentResource($appointment))->response();
+        });
     }
 
     //listar agendamentos
-    public function list(Request $request): JsonResponse
+    public function list(Request $request): AnonymousResourceCollection
     {
         $user = $request->user();
 
         $appointments = Appointment::query()
             ->with(['user', 'doctor', 'exam'])
             ->when($user->role !== 'admin', fn($query) => $query->where('user_id', $user->id))
-            ->get();
+            ->latest('date')
+            ->orderBy('time', 'desc')
+            ->orderBy('id', 'desc')
+            ->paginate(15);
 
-        return response()->json($appointments);
+        return AppointmentResource::collection($appointments);
     }
 
     //atualizar agendamento
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
-        $this->authorize('update', $appointment);
-
+        // autorização feita no authorize() do UpdateAppointmentRequest, antes da validação
         if ($appointment->status === AppointmentStatus::Cancelled) {
             return response()->json([
                 'message' => 'Agendamentos cancelados não podem ser alterados'
+            ], 409);
+        }
+
+        if ($appointment->status == AppointmentStatus::NoShow) {
+            return response()->json([
+                'message' => 'Agendamentos marcados como falta não podem ser alterados.'
             ], 409);
         }
 
@@ -113,28 +145,32 @@ class AppointmentController extends Controller
             ], 409);
         }
 
-        $error = DB::transaction(function () use ($data, $appointment, $changingSchedule) {
-            if ($changingSchedule) {
-
-                $date = $data['date'] ?? $appointment->date;
-                $time = $data['time'] ?? $appointment->time;
-
-                $conflict = $this->scheduler->findConflictMessage(
-                    $date,
-                    $time,
-                    $appointment->medico_id,
-                    $appointment->user_id,
-                    $appointment->id
-                );
-
-                if ($conflict) {
-                    return $conflict;
+        try {
+            $error = DB::transaction(function () use ($data, $appointment, $changingSchedule) {
+                if ($changingSchedule) {
+                    $date = $data['date'] ?? $appointment->date;
+                    $time = $data['time'] ?? $appointment->time;
+                    
+                    $conflict = $this->scheduler->findConflictMessage(
+                        $date,
+                        $time,
+                        $appointment->medico_id,
+                        $appointment->user_id,
+                        $appointment->id
+                    );
+    
+                    if ($conflict) {
+                        return $conflict;
+                    }
                 }
-            }
-
-            $appointment->update($data);
-            return null;
-        });
+                $appointment->update($data);
+                return null;
+            });
+        } catch(UniqueConstraintViolationException) {
+            return response()->json([
+                'message' => 'Esse horário foi preenchido recentemente.'
+            ], 409);
+        }
 
         if ($error) {
             return response()->json([
@@ -142,7 +178,7 @@ class AppointmentController extends Controller
             ], 422);
         }
 
-        return response()->json($appointment);
+        return (new AppointmentResource($appointment))->response();
     }
 
     //excluir agendamento
@@ -164,19 +200,23 @@ class AppointmentController extends Controller
     {
         $this->authorize('markNoShow', $appointment);
 
-        if ($appointment->status !== AppointmentStatus::Confirmed) {
-            return response()->json([
-                'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
-            ], 409);
-        }
-        if (!$appointment->scheduleAt->isPast()) {
-            return response()->json([
-                'message' => 'Não é possível marcar falta antes do horário do agendamento'
-            ], 422);
-        }
+        return DB::transaction(function () use ($appointment) {
+            $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-        $appointment->update(['status' => AppointmentStatus::NoShow]);
-        return response()->json($appointment);
+            if ($appointment->status !== AppointmentStatus::Confirmed) {
+                return response()->json([
+                    'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
+                ], 409);
+            }
+            if (!$appointment->scheduleAt->isPast()) {
+                return response()->json([
+                    'message' => 'Não é possível marcar falta antes do horário do agendamento'
+                ], 422);
+            }
+
+            $appointment->update(['status' => AppointmentStatus::NoShow]);
+            return (new AppointmentResource($appointment))->response();
+        });
     }
 
     public function __construct(private AppointmentScheduler $scheduler) {}

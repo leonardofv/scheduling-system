@@ -63,6 +63,7 @@ class AppointmentOriginValidationTest extends TestCase
             'medico_id' => $doctor->id,
             'date' => '2030-01-01',
             'time' => '10:00',
+            'forma_pagamento' => 'particular'
         ]);
 
         $response->assertStatus(201);

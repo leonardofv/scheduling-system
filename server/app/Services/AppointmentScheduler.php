@@ -18,11 +18,10 @@ class AppointmentScheduler
             return 'Não é possível agendar para uma data e horário no passado.';
         }
 
-        $baseQuery = fn () => Appointment::where('date', $date)
+        $baseQuery = fn() => Appointment::where('date', $date)
             ->where('time', $time)
             ->where('status', '!=', AppointmentStatus::Cancelled->value)
-            ->lockForUpdate()
-            ->when($ignoreId, fn (Builder $query) => $query->where('id', '!=', $ignoreId));
+            ->when($ignoreId, fn(Builder $query) => $query->where('id', '!=', $ignoreId));
 
         // Médico atende um paciente por vez. Exame não é recurso exclusivo,
         // então não gera conflito entre pacientes diferentes.
@@ -42,7 +41,22 @@ class AppointmentScheduler
         if ($patientConflict) {
             return 'Você já possui um agendamento para essa data e horário';
         }
+        
+        return null;
+    }
 
+    public function findFollowUpWindowViolation(Appointment $origin, ?string $followUpDate): ?string
+    {
+        if (!$followUpDate || !strtotime($followUpDate)) {
+            return null; // a rule 'date_format' do request reporta o erro
+        }
+
+        $windowDays = config('scheduling.follow_up_window_days');
+        $limit = Carbon::parse($origin->date)->addDays($windowDays);
+
+        if (Carbon::parse($followUpDate)->gt($limit)) {
+            return "O retorno deve ser marcado até {$windowDays} dias após a consulta de origem";
+        }
         return null;
     }
 }

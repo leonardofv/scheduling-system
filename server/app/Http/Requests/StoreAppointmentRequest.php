@@ -5,8 +5,10 @@ namespace App\Http\Requests;
 use App\Enums\AppointmentStatus;
 use App\Enums\AppointmentType;
 use App\Models\Appointment;
+use App\Services\AppointmentScheduler;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreAppointmentRequest extends FormRequest
 {
@@ -64,10 +66,33 @@ class StoreAppointmentRequest extends FormRequest
 
                     if ((int) $origem->medico_id !== (int) $this->input('medico_id')) {
                         $fail('O retorno deve ser com o mesmo médico da consulta de origem');
+                        return;
+                    }
+
+                    //janela de validade do retorno
+                    $violation = app(AppointmentScheduler::class)
+                        ->findFollowUpWindowViolation($origem, $this->input('date'));
+                    if ($violation) {
+                        $fail($violation);
+                        return;
+                    }
+
+                    // um retorno ativo por consulta
+                    $hasActiveFollowUp = $origem->followUps()
+                        ->where('status', '!=', AppointmentStatus::Cancelled->value)
+                        ->exists();
+                    if ($hasActiveFollowUp) {
+                        $fail('Essa consulta já possui um retorno agendado');
                     }
                 }
             ],
-            'date' => 'required|date',
+            'forma_pagamento' => 'required|in:particular,plano',
+            'plano_id' => [
+                'required_if:forma_pagamento,plano',
+                'prohibited_unless:forma_pagamento,plano',
+                Rule::exists('planos_saude', 'id')->where('ativo', true), //garante escolher plano aceito pelo hospital
+            ],
+            'date' => 'required|date_format:Y-m-d',
             'time' => 'required|date_format:H:i',
             'observation' => 'nullable|string|max:255',
         ];
