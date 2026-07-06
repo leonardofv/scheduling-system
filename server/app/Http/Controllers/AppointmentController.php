@@ -130,6 +130,12 @@ class AppointmentController extends Controller
             ], 409);
         }
 
+        if ($appointment->status == AppointmentStatus::NoShow) {
+            return response()->json([
+                'message' => 'Agendamentos marcados como falta não podem ser alterados.'
+            ], 409);
+        }
+
         $data = $request->validated();
         $changingSchedule = isset($data['date']) || isset($data['time']);
 
