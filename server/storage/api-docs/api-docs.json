@@ -1,0 +1,92 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "API Sistema de Agendamento",
+        "description": "API para agendamento de consultas, retornos e exames",
+        "version": "1.0.0"
+    },
+    "paths": {
+        "/api/login": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Autentica o usuário e retorna o token",
+                "operationId": "520781bcc09f6785aab0c4c8919e0dd3",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "email",
+                                    "password"
+                                ],
+                                "properties": {
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "paciente@email.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "example": "senha123"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Login realizado, retorna user e token"
+                    },
+                    "422": {
+                        "description": "Credenciais inválidas"
+                    },
+                    "429": {
+                        "description": "Muitas tentativas (rate limit)"
+                    }
+                }
+            }
+        },
+        "/api/logout": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Revoga o token atual",
+                "operationId": "c8819c04bbfeefe640348a860cddca48",
+                "responses": {
+                    "200": {
+                        "description": "Logout realizado com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Token gerado no login/register. Informe apenas o token, sem o prefixo Bearer.",
+                "scheme": "bearer"
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "Auth",
+            "description": "Auth"
+        }
+    ]
+}
