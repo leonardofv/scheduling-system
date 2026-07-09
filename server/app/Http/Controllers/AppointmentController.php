@@ -39,10 +39,10 @@ class AppointmentController extends Controller
                 $appointment = $request->user()->appointments()->create($data);
                 return null;
             });
-        } catch(UniqueConstraintViolationException $e) {
-            $message = str_contains($e->getMessage(), 'agendamento_origem_id') || str_contains($e->getMessage(), 'agendamentos_follow_up_unique') ? 
-            'Essa consulta já possui um retorno agendado' : 
-            'Esse horário foi preenchido recentemente';
+        } catch (UniqueConstraintViolationException $e) {
+            $message = str_contains($e->getMessage(), 'agendamento_origem_id') || str_contains($e->getMessage(), 'agendamentos_follow_up_unique') ?
+                'Essa consulta já possui um retorno agendado' :
+                'Esse horário foi preenchido recentemente';
 
             return response()->json(['message' => $message], 409);
         }
@@ -123,63 +123,45 @@ class AppointmentController extends Controller
     //atualizar agendamento
     public function update(UpdateAppointmentRequest $request, Appointment $appointment): JsonResponse
     {
-        // autorização feita no authorize() do UpdateAppointmentRequest, antes da validação
-        if ($appointment->status === AppointmentStatus::Cancelled) {
-            return response()->json([
-                'message' => 'Agendamentos cancelados não podem ser alterados'
-            ], 409);
-        }
-
-        if ($appointment->status == AppointmentStatus::NoShow) {
-            return response()->json([
-                'message' => 'Agendamentos marcados como falta não podem ser alterados.'
-            ], 409);
-        }
-
-        $data = $request->validated();
-        $changingSchedule = isset($data['date']) || isset($data['time']);
-
-        if ($changingSchedule && $appointment->status === AppointmentStatus::Confirmed) {
-            return response()->json([
-                'message' => 'Para alterar a data/hora de um agendamento confirmado, cancele e crie um novo'
-            ], 409);
-        }
-
         try {
-            $error = DB::transaction(function () use ($data, $appointment, $changingSchedule) {
+            return DB::transaction(function () use ($request, $appointment) {
+                $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
+
+                if ($appointment->status === AppointmentStatus::Cancelled) {
+                    return response()->json(['message' => 'Agendamentos cancelados não podem ser alterados'], 409);
+                }
+                if ($appointment->status === AppointmentStatus::NoShow) {
+                    return response()->json(['message' => 'Agendamentos marcados como falta não podem ser alterados.'], 409);
+                }
+
+                $data = $request->validated();
+                $changingSchedule = isset($data['date']) || isset($data['time']);
+
+                if ($changingSchedule && $appointment->status === AppointmentStatus::Confirmed) {
+                    return response()->json(['message' => 'Para alterar a data/hora de um agendamento confirmado, cancele e crie um novo'], 409);
+                }
+
                 if ($changingSchedule) {
-                    $date = $data['date'] ?? $appointment->date;
-                    $time = $data['time'] ?? $appointment->time;
-                    
                     $conflict = $this->scheduler->findConflictMessage(
-                        $date,
-                        $time,
+                        $data['date'] ?? $appointment->date,
+                        $data['time'] ?? $appointment->time,
                         $appointment->medico_id,
                         $appointment->user_id,
                         $appointment->id
                     );
-    
                     if ($conflict) {
-                        return $conflict;
+                        return response()->json(['message' => $conflict], 422);
                     }
                 }
+
                 $appointment->update($data);
-                return null;
+                return (new AppointmentResource($appointment))->response();
             });
-        } catch(UniqueConstraintViolationException) {
-            return response()->json([
-                'message' => 'Esse horário foi preenchido recentemente.'
-            ], 409);
+        } catch (UniqueConstraintViolationException) {
+            return response()->json(['message' => 'Esse horário foi preenchido recentemente.'], 409);
         }
-
-        if ($error) {
-            return response()->json([
-                'message' => $error
-            ], 422);
-        }
-
-        return (new AppointmentResource($appointment))->response();
     }
+
 
     //excluir agendamento
     public function destroy(Appointment $appointment): JsonResponse
