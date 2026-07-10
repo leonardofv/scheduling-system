@@ -90,7 +90,7 @@ export default function AppointmentModal({
                 <input
                   type="date"
                   defaultValue={appointment?.date}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
 
@@ -99,7 +99,7 @@ export default function AppointmentModal({
                 <input
                   type="time"
                   defaultValue={appointment?.time}
-                  className="px-4 py-2 border border-gray-300 rounded-lg focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100"
+                  className="px-4 py-2 border border-gray-300 rounded-lg focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100"
                 />
               </div>
             </div>
@@ -116,7 +116,7 @@ export default function AppointmentModal({
             <button
               onClick={() => onConfirm()}
               disabled={isLoading}
-              className="flex-1 px-4 py-2 bg-indigo-600 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 bg-emerald-600 text-white font-medium rounded-lg hover:bg-emerald-700 transition-colors disabled:opacity-50"
             >
               {isLoading ? "Salvando..." : "Salvar"}
             </button>

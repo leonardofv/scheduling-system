@@ -47,7 +47,7 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
           onChange={handleChange}
           required
           placeholder="seu@email.com"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
@@ -60,12 +60,12 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
           onChange={handleChange}
           required
           placeholder="••••••••"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
       <div className="text-right">
-        <button type="button" className="text-xs text-indigo-600 hover:underline">
+        <button type="button" className="text-xs text-emerald-600 hover:underline">
           Esqueceu a senha?
         </button>
       </div>
@@ -74,14 +74,14 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
       >
         Entrar
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-2">
         Não tem conta?{" "}
-        <button type="button" onClick={onSwitchToRegister} className="text-indigo-600 font-medium hover:underline">
+        <button type="button" onClick={onSwitchToRegister} className="text-emerald-600 font-medium hover:underline">
           Cadastre-se
         </button>
       </p>

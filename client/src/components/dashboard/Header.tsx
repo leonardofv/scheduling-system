@@ -58,25 +58,103 @@ export default function Header() {
     router.push("/dashboard/profile");
   }
 
-  function handleLogout() {
-    localStorage.removeItem("token");
-    router.push("/");
+  async function handleLogout() {
+    const token = localStorage.getItem("token");
+
+    try {
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+      });
+    } catch (error){
+      console.error("Erro ao fazer logout:", error);
+    } finally {
+      localStorage.removeItem("token");
+      router.push("/");
+    }
   }
 
   return (
-    <header className="bg-white border-b border-gray-200 shadow-sm">
-      {/* Top Row - Logo and User Menu */}
+    <header className="bg-emerald-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-8">
             <button
+              title="AgendaFácil"
               onClick={() => router.push("/dashboard")}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-indigo-600 hover:bg-indigo-700 transition-colors"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 hover:bg-white/25 transition-colors"
             >
               <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </button>
+
+            <nav className="flex items-center gap-8">
+              <button
+                onClick={() => {
+                  const pathname = window.location.pathname;
+                  if (pathname === "/dashboard") {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                  } else {
+                    router.push("/dashboard");
+                  }
+                }}
+                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
+              >
+                Página Inicial
+              </button>
+              <button
+                onClick={() => {
+                  const pathname = window.location.pathname;
+                  if (pathname === "/dashboard") {
+                    const section = document.getElementById("secoes");
+                    if (section) {
+                      section.scrollIntoView({ behavior: "smooth" });
+                    }
+                  } else {
+                    router.push("/dashboard/appointments");
+                  }
+                }}
+                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 border-transparent hover:border-emerald-100 transition-colors"
+              >
+                Agendamentos
+              </button>
+              <button
+                onClick={() => {
+                  const pathname = window.location.pathname;
+                  if (pathname === "/dashboard") {
+                    const section = document.getElementById("secoes");
+                    if (section) {
+                      section.scrollIntoView({ behavior: "smooth" });
+                    }
+                  } else {
+                    router.push("/dashboard/services");
+                  }
+                }}
+                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
+              >
+                Serviços
+              </button>
+              <button
+                onClick={() => {
+                  const pathname = window.location.pathname;
+                  if (pathname === "/dashboard") {
+                    const section = document.getElementById("secoes");
+                    if (section) {
+                      section.scrollIntoView({ behavior: "smooth" });
+                    }
+                  } else {
+                    router.push("/dashboard/reports");
+                  }
+                }}
+                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
+              >
+                Relatórios
+              </button>
+            </nav>
           </div>
 
           <div className="flex items-center gap-6">
@@ -84,16 +162,25 @@ export default function Header() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors"
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center flex-shrink-0">
-                    <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center flex-shrink-0">
+                    <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                       <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                     </svg>
                   </div>
-                  <span className="text-sm font-medium text-gray-900">
+                  <span className="text-sm font-medium text-white">
                     Olá, {user.name}
                   </span>
+
+                  <svg
+                    className={`w-4 h-4 text-white transition-transform ${dropdownOpen ? "rotate-180" : ""}`}
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                  </svg>
                 </button>
 
                 {dropdownOpen && (
@@ -102,97 +189,35 @@ export default function Header() {
                       onClick={handleProfileClick}
                       className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
                     >
-                      <svg className="w-4 h-4 text-indigo-600" fill="currentColor" viewBox="0 0 24 24">
+                      <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
                         <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
                       </svg>
                       Meu Perfil
                     </button>
                     <div className="px-2 py-2">
-                      <p className="text-xs text-gray-500 px-2 py-2 break-words">{user.email}</p>
+                      <p className="text-xs text-gray-500 px-2 py-2">{user.email}</p>
                     </div>
+                    
+                    <button
+                    onClick={handleLogout}
+                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100"
+                    >
+                      <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
+                      </svg>
+                      Sair
+                    </button>
+
+
+
+
                   </div>
                 )}
               </div>
             )}
-
-            <button
-              onClick={handleLogout}
-              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 rounded-lg hover:bg-gray-100 transition-colors"
-            >
-              Sair
-            </button>
           </div>
         </div>
       </div>
-
-      {/* Bottom Row - Navigation (Full Width) */}
-      <nav className="bg-indigo-600 border-t border-indigo-700">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3">
-          <div className="flex gap-8">
-            <button
-              onClick={() => {
-                const pathname = window.location.pathname;
-                if (pathname === "/dashboard") {
-                  window.scrollTo({ top: 0, behavior: "smooth" });
-                } else {
-                  router.push("/dashboard");
-                }
-              }}
-              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-            >
-              Página Inicial
-            </button>
-            <button
-              onClick={() => {
-                const pathname = window.location.pathname;
-                if (pathname === "/dashboard") {
-                  const section = document.getElementById("secoes");
-                  if (section) {
-                    section.scrollIntoView({ behavior: "smooth" });
-                  }
-                } else {
-                  router.push("/dashboard/appointments");
-                }
-              }}
-              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-            >
-              Agendamentos
-            </button>
-            <button
-              onClick={() => {
-                const pathname = window.location.pathname;
-                if (pathname === "/dashboard") {
-                  const section = document.getElementById("secoes");
-                  if (section) {
-                    section.scrollIntoView({ behavior: "smooth" });
-                  }
-                } else {
-                  router.push("/dashboard/services");
-                }
-              }}
-              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-            >
-              Serviços
-            </button>
-            <button
-              onClick={() => {
-                const pathname = window.location.pathname;
-                if (pathname === "/dashboard") {
-                  const section = document.getElementById("secoes");
-                  if (section) {
-                    section.scrollIntoView({ behavior: "smooth" });
-                  }
-                } else {
-                  router.push("/dashboard/reports");
-                }
-              }}
-              className="pb-0 px-1 text-sm font-medium text-white hover:text-indigo-100 border-b-2 border-transparent hover:border-indigo-100 transition-colors"
-            >
-              Relatórios
-            </button>
-          </div>
-        </div>
-      </nav>
     </header>
   );
 }
