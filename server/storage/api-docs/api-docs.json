@@ -6,6 +6,222 @@
         "version": "1.0.0"
     },
     "paths": {
+        "/api/agendamentos": {
+            "get": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Lista os agendamentos (paginado; paciente vê os seus, admin vê todos)",
+                "operationId": "952730bdd916b73a641fd80bb847361e",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Página da listagem (15 agendamentos por página, mais recentes primeiro)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada de agendamentos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 10
+                                                    },
+                                                    "user_id": {
+                                                        "type": "integer",
+                                                        "example": 3
+                                                    },
+                                                    "tipo": {
+                                                        "type": "string",
+                                                        "example": "consulta",
+                                                        "enum": [
+                                                            "consulta",
+                                                            "retorno",
+                                                            "exame"
+                                                        ]
+                                                    },
+                                                    "medico_id": {
+                                                        "description": "Presente em consulta/retorno; null em exame",
+                                                        "type": "integer",
+                                                        "example": 1,
+                                                        "nullable": true
+                                                    },
+                                                    "exame_id": {
+                                                        "description": "Presente em exame; null em consulta/retorno",
+                                                        "type": "integer",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "agendamento_origem_id": {
+                                                        "description": "Consulta de origem, quando tipo=retorno",
+                                                        "type": "integer",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "plano_id": {
+                                                        "type": "integer",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "date": {
+                                                        "type": "string",
+                                                        "format": "date",
+                                                        "example": "2026-07-15"
+                                                    },
+                                                    "time": {
+                                                        "type": "string",
+                                                        "example": "09:00:00"
+                                                    },
+                                                    "status": {
+                                                        "type": "string",
+                                                        "example": "pendente",
+                                                        "enum": [
+                                                            "pendente",
+                                                            "confirmado",
+                                                            "cancelado",
+                                                            "falta"
+                                                        ]
+                                                    },
+                                                    "forma_pagamento": {
+                                                        "type": "string",
+                                                        "example": "particular",
+                                                        "enum": [
+                                                            "particular",
+                                                            "plano"
+                                                        ]
+                                                    },
+                                                    "observation": {
+                                                        "type": "string",
+                                                        "example": null,
+                                                        "nullable": true
+                                                    },
+                                                    "created_at": {
+                                                        "type": "string",
+                                                        "format": "date-time",
+                                                        "example": "2026-07-10T12:00:00.000000Z"
+                                                    },
+                                                    "user": {
+                                                        "description": "Dados do paciente (id, name, email, phone, role, created_at)",
+                                                        "type": "object"
+                                                    },
+                                                    "doctor": {
+                                                        "description": "Dados do médico, quando consulta/retorno",
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    },
+                                                    "exam": {
+                                                        "description": "Dados do exame, quando tipo=exame",
+                                                        "type": "object",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "links": {
+                                            "description": "first, last, prev, next",
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "description": "current_page, last_page, per_page, total, path...",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/register": {
+            "post": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Registra um novo usuário e retorna o token",
+                "operationId": "8be0b82782c80aee01393f0214c8511f",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "name",
+                                    "email",
+                                    "password",
+                                    "password_confirmation"
+                                ],
+                                "properties": {
+                                    "name": {
+                                        "type": "string",
+                                        "example": "Maria da Silva",
+                                        "maxLength": 255
+                                    },
+                                    "email": {
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "maria@email.com"
+                                    },
+                                    "password": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "senha123",
+                                        "minLength": 8
+                                    },
+                                    "password_confirmation": {
+                                        "type": "string",
+                                        "format": "password",
+                                        "example": "senha123"
+                                    },
+                                    "phone": {
+                                        "type": "string",
+                                        "example": "85999990000",
+                                        "nullable": true,
+                                        "maxLength": 20
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado, retorna user e token"
+                    },
+                    "422": {
+                        "description": "Erro de validação (e-mail já cadastrado, senha curta, confirmação não confere)"
+                    },
+                    "429": {
+                        "description": "Muitas tentativas (rate limit)"
+                    }
+                }
+            }
+        },
         "/api/login": {
             "post": {
                 "tags": [
@@ -26,7 +242,7 @@
                                     "email": {
                                         "type": "string",
                                         "format": "email",
-                                        "example": "paciente@email.com"
+                                        "example": "admin@email.com"
                                     },
                                     "password": {
                                         "type": "string",
@@ -72,6 +288,259 @@
                     }
                 ]
             }
+        },
+        "/api/medicos": {
+            "get": {
+                "tags": [
+                    "Médicos"
+                ],
+                "summary": "Lista todos os médicos com sua especialidade",
+                "operationId": "ef7310d617e340802415bbe6bf122116",
+                "responses": {
+                    "200": {
+                        "description": "Lista de médicos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "Dr. João Cardoso"
+                                            },
+                                            "crm": {
+                                                "type": "string",
+                                                "example": "CRM-CE 12345"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "format": "email",
+                                                "example": "joao.cardoso@hospital.com",
+                                                "nullable": true
+                                            },
+                                            "telefone": {
+                                                "type": "string",
+                                                "example": "85999990000",
+                                                "nullable": true
+                                            },
+                                            "especialidade_id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "specialty": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "integer",
+                                                        "example": 1
+                                                    },
+                                                    "nome": {
+                                                        "type": "string",
+                                                        "example": "Cardiologia"
+                                                    },
+                                                    "descricao": {
+                                                        "type": "string",
+                                                        "example": "Diagnóstico e tratamento de doenças do coração",
+                                                        "nullable": true
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/exames": {
+            "get": {
+                "tags": [
+                    "Exames"
+                ],
+                "summary": "Lista todos os exames disponíveis",
+                "operationId": "123414dcd07b2e64b5bdc9be49d40e87",
+                "responses": {
+                    "200": {
+                        "description": "Lista de exames",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "Eletrocardiograma"
+                                            },
+                                            "valor": {
+                                                "description": "Valor em reais, serializado como string decimal",
+                                                "type": "string",
+                                                "example": "150.00"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/planos-saude": {
+            "get": {
+                "tags": [
+                    "Planos de Saúde"
+                ],
+                "summary": "Lista os planos de saúde ativos (aceitos pelo hospital)",
+                "operationId": "f23adf9e2199ca4d25e16d2d377f3a14",
+                "responses": {
+                    "200": {
+                        "description": "Lista de planos ativos (planos inativos não aparecem)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "Unimed"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/especialidades": {
+            "get": {
+                "tags": [
+                    "Especialidades"
+                ],
+                "summary": "Lista todas as especialidades",
+                "operationId": "a7c9394350e884552135c2bb3264ffae",
+                "responses": {
+                    "200": {
+                        "description": "Lista de especialidades",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 1
+                                            },
+                                            "nome": {
+                                                "type": "string",
+                                                "example": "Cardiologia"
+                                            },
+                                            "descricao": {
+                                                "type": "string",
+                                                "example": "Diagnóstico e tratamento de doenças do coração",
+                                                "nullable": true
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/users": {
+            "get": {
+                "tags": [
+                    "Users"
+                ],
+                "summary": "Lista os usuários cadastrados (paginado, apenas admin)",
+                "operationId": "05bd81e12417eedf8432b32bf24f6944",
+                "parameters": [
+                    {
+                        "name": "page",
+                        "in": "query",
+                        "description": "Página da listagem (15 usuários por página)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "example": 1,
+                            "minimum": 1
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista paginada: registros em \"data\", navegação em \"links\" e \"meta\""
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -85,8 +554,32 @@
     },
     "tags": [
         {
+            "name": "Agendamentos",
+            "description": "Agendamentos"
+        },
+        {
             "name": "Auth",
             "description": "Auth"
+        },
+        {
+            "name": "Médicos",
+            "description": "Médicos"
+        },
+        {
+            "name": "Exames",
+            "description": "Exames"
+        },
+        {
+            "name": "Planos de Saúde",
+            "description": "Planos de Saúde"
+        },
+        {
+            "name": "Especialidades",
+            "description": "Especialidades"
+        },
+        {
+            "name": "Users",
+            "description": "Users"
         }
     ]
 }
