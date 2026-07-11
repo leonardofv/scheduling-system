@@ -571,51 +571,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "id": {
-                                            "type": "integer",
-                                            "example": 3
-                                        },
-                                        "name": {
-                                            "type": "string",
-                                            "example": "Maria da Silva"
-                                        },
-                                        "email": {
-                                            "type": "string",
-                                            "format": "email",
-                                            "example": "maria@email.com"
-                                        },
-                                        "email_verified_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": null,
-                                            "nullable": true
-                                        },
-                                        "phone": {
-                                            "type": "string",
-                                            "example": "85999990000",
-                                            "nullable": true
-                                        },
-                                        "role": {
-                                            "type": "string",
-                                            "example": "cliente",
-                                            "enum": [
-                                                "cliente",
-                                                "admin"
-                                            ]
-                                        },
-                                        "created_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2026-07-10T12:00:00.000000Z"
-                                        },
-                                        "updated_at": {
-                                            "type": "string",
-                                            "format": "date-time",
-                                            "example": "2026-07-10T12:00:00.000000Z"
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }

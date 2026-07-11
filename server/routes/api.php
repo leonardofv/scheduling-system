@@ -6,7 +6,6 @@ use App\Http\Controllers\SpecialtyController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\DoctorController;
 use App\Http\Controllers\HealthPlanController;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 // Rotas públicas
@@ -16,10 +15,8 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:au
 //Qualquer usuário autenticado
 Route::middleware('auth:sanctum')->group(function() {
 
+    Route::get('/user', [AuthController::class, 'me']);
     Route::post('/logout', [AuthController::class, 'logout']);
-    Route::get('/user', function (Request $request) {
-        return $request->user();
-    });
     Route::post('/agendamentos', [AppointmentController::class, 'store']);
     Route::get('/agendamentos', [AppointmentController::class, 'list']);
     Route::put('/agendamentos/{appointment}', [AppointmentController::class, 'update']);
