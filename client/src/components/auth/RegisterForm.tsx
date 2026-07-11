@@ -7,11 +7,32 @@ interface Props {
 }
 
 export default function RegisterForm({ onSwitchToLogin }: Props) {
-  const [form, setForm] = useState({ name: "", email: "", password: "", confirmPassword: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
 
+
+  function formatPhone(value: string){
+    const numbers = value.replace(/\D/g, "").slice(0,11);
+
+    if (numbers.length <= 2){
+      return numbers;
+    }
+
+    if (numbers.length <= 7){
+      return `(${numbers.slice(0,2)}) ${numbers.slice(2)}`;
+    }
+
+    return `(${numbers.slice(0,2)}) ${numbers.slice(2, 7)}-${numbers.slice(7)}`;
+  }
+
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+    const { name, value } = e.target;
+
+    setForm((prev) => ({
+      ...prev,
+      [name]: name === "phone" ? formatPhone(value) : value,
+    }))
+
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -29,6 +50,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       body: JSON.stringify({
         name: form.name,
         email: form.email,
+        phone: form.phone,
         password: form.password,
         password_confirmation: form.confirmPassword
       }),
@@ -41,9 +63,8 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       return;
     }
     
-    localStorage.setItem("token", data.token);
     alert("Cadastro realizado com sucesso");
-
+    onSwitchToLogin();
   }
 
   return (
@@ -57,7 +78,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
           onChange={handleChange}
           required
           placeholder="Seu nome"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
@@ -70,7 +91,19 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
           onChange={handleChange}
           required
           placeholder="seu@email.com"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
+        />
+      </div>
+
+      <div className="flex flex-col gap-1">
+        <label className="text-sm font-medium text-gray-700">Telefone</label>
+        <input
+          type="tel"
+          name="phone"
+          value={form.phone}
+          onChange={handleChange}
+          placeholder="(85) 99999-9999"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
@@ -83,7 +116,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
           onChange={handleChange}
           required
           placeholder="••••••••"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
@@ -96,7 +129,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
           onChange={handleChange}
           required
           placeholder="••••••••"
-          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-100 transition"
+          className="rounded-lg border border-gray-200 px-4 py-2.5 text-sm text-gray-900 placeholder-gray-400 outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 transition"
         />
       </div>
 
@@ -104,14 +137,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-indigo-600 py-2.5 text-sm font-semibold text-white hover:bg-indigo-700 active:bg-indigo-800 transition-colors"
+        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
       >
         Criar conta
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-2">
         Já tem conta?{" "}
-        <button type="button" onClick={onSwitchToLogin} className="text-indigo-600 font-medium hover:underline">
+        <button type="button" onClick={onSwitchToLogin} className="text-emerald-600 font-medium hover:underline">
           Entrar
         </button>
       </p>

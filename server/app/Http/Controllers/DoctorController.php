@@ -1,0 +1,57 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use App\Models\Doctor;
+use Exception;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Support\Facades\Log;
+use App\Http\Requests\StoreDoctorRequest;
+use App\Http\Requests\UpdateDoctorRequest;
+use App\Http\Resources\DoctorResource;
+use Illuminate\Database\QueryException;
+use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+
+class DoctorController extends Controller
+{
+    public function store(StoreDoctorRequest $request): JsonResponse
+    {
+        $this->authorize('create', Doctor::class);
+        $doctor = Doctor::create($request->validated());
+        return (new DoctorResource($doctor))->response()->setStatusCode(201);
+    }
+
+    public function list(): AnonymousResourceCollection
+    {
+        return DoctorResource::collection(Doctor::with('specialty')->get());
+    }
+
+    public function update(UpdateDoctorRequest $request, Doctor $doctor): DoctorResource
+    {
+        $this->authorize('update', $doctor);
+
+        $doctor->update($request->validated());
+        return new DoctorResource($doctor);
+    }
+
+    public function destroy(Doctor $doctor): JsonResponse
+    {
+        $this->authorize('delete', $doctor);
+
+        try {
+            $doctor->delete();
+            return response()->json(["message" => "Médico excluído com sucesso"], 200);
+        } catch (QueryException $e) {
+            if (str_starts_with($e->getCode(), '23')) {
+                return response()->json([
+                    'message' => 'Não é possível excluir: este médico possui agendamentos vinculados.'
+                ], 409);
+            }
+            Log::error('Erro ao excluir médico: ' . $e->getMessage() . $e->getFile());
+            return response()->json(['message' => 'Erro ao excluir médico'], 500);
+        } catch (Exception $e) {
+            Log::error('Erro ao excluir médico: ' . $e->getMessage() . $e->getFile());
+            return response()->json(['message' => 'Erro ao excluir médico'], 500);
+        }
+    }
+}
