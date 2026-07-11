@@ -21,7 +21,21 @@ class UserDoc
             ),
         ],
         responses: [
-            new OA\Response(response: 200, description: 'Lista paginada: registros em "data", navegação em "links" e "meta"'),
+            new OA\Response(
+                response: 200,
+                description: 'Lista paginada de usuários',
+                content: new OA\JsonContent(
+                    properties: [
+                        new OA\Property(
+                            property: 'data',
+                            type: 'array',
+                            items: new OA\Items(ref: '#/components/schemas/User')
+                        ),
+                        new OA\Property(property: 'links', type: 'object', description: 'first, last, prev, next'),
+                        new OA\Property(property: 'meta', type: 'object', description: 'current_page, last_page, per_page, total, path...'),
+                    ]
+                )
+            ),
             new OA\Response(response: 401, description: 'Não autenticado'),
             new OA\Response(response: 403, description: 'Acesso restrito a administradores'),
         ]

@@ -36,100 +36,7 @@
                                         "data": {
                                             "type": "array",
                                             "items": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 10
-                                                    },
-                                                    "user_id": {
-                                                        "type": "integer",
-                                                        "example": 3
-                                                    },
-                                                    "tipo": {
-                                                        "type": "string",
-                                                        "example": "consulta",
-                                                        "enum": [
-                                                            "consulta",
-                                                            "retorno",
-                                                            "exame"
-                                                        ]
-                                                    },
-                                                    "medico_id": {
-                                                        "description": "Presente em consulta/retorno; null em exame",
-                                                        "type": "integer",
-                                                        "example": 1,
-                                                        "nullable": true
-                                                    },
-                                                    "exame_id": {
-                                                        "description": "Presente em exame; null em consulta/retorno",
-                                                        "type": "integer",
-                                                        "example": null,
-                                                        "nullable": true
-                                                    },
-                                                    "agendamento_origem_id": {
-                                                        "description": "Consulta de origem, quando tipo=retorno",
-                                                        "type": "integer",
-                                                        "example": null,
-                                                        "nullable": true
-                                                    },
-                                                    "plano_id": {
-                                                        "type": "integer",
-                                                        "example": null,
-                                                        "nullable": true
-                                                    },
-                                                    "date": {
-                                                        "type": "string",
-                                                        "format": "date",
-                                                        "example": "2026-07-15"
-                                                    },
-                                                    "time": {
-                                                        "type": "string",
-                                                        "example": "09:00:00"
-                                                    },
-                                                    "status": {
-                                                        "type": "string",
-                                                        "example": "pendente",
-                                                        "enum": [
-                                                            "pendente",
-                                                            "confirmado",
-                                                            "cancelado",
-                                                            "falta"
-                                                        ]
-                                                    },
-                                                    "forma_pagamento": {
-                                                        "type": "string",
-                                                        "example": "particular",
-                                                        "enum": [
-                                                            "particular",
-                                                            "plano"
-                                                        ]
-                                                    },
-                                                    "observation": {
-                                                        "type": "string",
-                                                        "example": null,
-                                                        "nullable": true
-                                                    },
-                                                    "created_at": {
-                                                        "type": "string",
-                                                        "format": "date-time",
-                                                        "example": "2026-07-10T12:00:00.000000Z"
-                                                    },
-                                                    "user": {
-                                                        "description": "Dados do paciente (id, name, email, phone, role, created_at)",
-                                                        "type": "object"
-                                                    },
-                                                    "doctor": {
-                                                        "description": "Dados do médico, quando consulta/retorno",
-                                                        "type": "object",
-                                                        "nullable": true
-                                                    },
-                                                    "exam": {
-                                                        "description": "Dados do exame, quando tipo=exame",
-                                                        "type": "object",
-                                                        "nullable": true
-                                                    }
-                                                },
-                                                "type": "object"
+                                                "$ref": "#/components/schemas/Appointment"
                                             }
                                         },
                                         "links": {
@@ -148,6 +55,390 @@
                     },
                     "401": {
                         "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Cria um agendamento de consulta, retorno ou exame",
+                "operationId": "63ca0a540124c1693018a6f44e89d36e",
+                "requestBody": {
+                    "description": "Campos condicionais por tipo: consulta/retorno exigem medico_id (proibido em exame); exame exige exame_id (proibido nos demais); retorno exige agendamento_origem_id (proibido nos demais), que deve ser uma consulta sua, confirmada e já ocorrida, com o mesmo médico, dentro da janela de validade e sem outro retorno ativo. forma_pagamento=plano exige plano_id de plano ativo (proibido em particular).",
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "tipo",
+                                    "forma_pagamento",
+                                    "date",
+                                    "time"
+                                ],
+                                "properties": {
+                                    "tipo": {
+                                        "type": "string",
+                                        "example": "consulta",
+                                        "enum": [
+                                            "consulta",
+                                            "retorno",
+                                            "exame"
+                                        ]
+                                    },
+                                    "medico_id": {
+                                        "description": "Obrigatório em consulta/retorno; proibido em exame",
+                                        "type": "integer",
+                                        "example": 1,
+                                        "nullable": true
+                                    },
+                                    "exame_id": {
+                                        "description": "Obrigatório em exame; proibido em consulta/retorno",
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "agendamento_origem_id": {
+                                        "description": "Obrigatório em retorno; proibido nos demais",
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "forma_pagamento": {
+                                        "type": "string",
+                                        "example": "particular",
+                                        "enum": [
+                                            "particular",
+                                            "plano"
+                                        ]
+                                    },
+                                    "plano_id": {
+                                        "description": "Obrigatório se forma_pagamento=plano (apenas planos ativos); proibido se particular",
+                                        "type": "integer",
+                                        "example": null,
+                                        "nullable": true
+                                    },
+                                    "date": {
+                                        "description": "Formato Y-m-d",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-20"
+                                    },
+                                    "time": {
+                                        "description": "Formato H:i",
+                                        "type": "string",
+                                        "example": "09:00"
+                                    },
+                                    "observation": {
+                                        "type": "string",
+                                        "example": null,
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Agendamento criado (sem os objetos user/doctor/exam; use GET /api/agendamentos para obtê-los)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "409": {
+                        "description": "Horário preenchido por outra requisição concorrente, ou a consulta já possui retorno"
+                    },
+                    "422": {
+                        "description": "Erro de validação ou conflito de horário (médico ou paciente já ocupado)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agendamentos/{appointment}": {
+            "put": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Atualiza data, hora ou observação de um agendamento (dono ou admin)",
+                "operationId": "405523c2d065ee9c23944b9e25856c96",
+                "parameters": [
+                    {
+                        "name": "appointment",
+                        "in": "path",
+                        "description": "ID do agendamento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Todos os campos são opcionais. Apenas date, time e observation podem ser alterados.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "date": {
+                                        "description": "Formato Y-m-d",
+                                        "type": "string",
+                                        "format": "date",
+                                        "example": "2026-07-22"
+                                    },
+                                    "time": {
+                                        "description": "Formato H:i",
+                                        "type": "string",
+                                        "example": "10:00"
+                                    },
+                                    "observation": {
+                                        "type": "string",
+                                        "example": "Paciente pediu remarcação",
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Agendamento atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Agendamento de outro usuário"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    },
+                    "409": {
+                        "description": "Status não permite alteração (cancelado/falta), confirmado tentando mudar data/hora, ou horário preenchido por concorrência"
+                    },
+                    "422": {
+                        "description": "Erro de validação, conflito de horário ou data fora da janela do retorno"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Exclui um agendamento (apenas admin)",
+                "operationId": "660a2072ab4c9fa385745f0accf768c5",
+                "parameters": [
+                    {
+                        "name": "appointment",
+                        "in": "path",
+                        "description": "ID do agendamento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Agendamento excluído"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    },
+                    "500": {
+                        "description": "Erro interno ao excluir"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agendamentos/{appointment}/cancel": {
+            "patch": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Cancela um agendamento (dono ou admin)",
+                "operationId": "0757af4f4db029f9ed02a2294c0e28f3",
+                "parameters": [
+                    {
+                        "name": "appointment",
+                        "in": "path",
+                        "description": "ID do agendamento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Agendamento cancelado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Agendamento de outro usuário"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    },
+                    "409": {
+                        "description": "Já cancelado, ou status não permite cancelamento (apenas pendente/confirmado)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agendamentos/{appointment}/confirm": {
+            "patch": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Confirma um agendamento pendente (apenas admin)",
+                "operationId": "7ed1fd0cf8d6be7713e81105a4ee458a",
+                "parameters": [
+                    {
+                        "name": "appointment",
+                        "in": "path",
+                        "description": "ID do agendamento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Agendamento confirmado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    },
+                    "409": {
+                        "description": "Apenas agendamentos pendentes podem ser confirmados"
+                    },
+                    "422": {
+                        "description": "Data/horário do agendamento já passou"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/agendamentos/{appointment}/no-show": {
+            "patch": {
+                "tags": [
+                    "Agendamentos"
+                ],
+                "summary": "Marca falta em um agendamento confirmado (apenas admin)",
+                "operationId": "f18bef1a2f5dbfd5cec27a805930b05b",
+                "parameters": [
+                    {
+                        "name": "appointment",
+                        "in": "path",
+                        "description": "ID do agendamento",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Falta registrada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Agendamento não encontrado"
+                    },
+                    "409": {
+                        "description": "Apenas agendamentos confirmados podem ser marcados como falta"
+                    },
+                    "422": {
+                        "description": "Não é possível marcar falta antes do horário do agendamento"
                     }
                 },
                 "security": [
@@ -267,6 +558,79 @@
                 }
             }
         },
+        "/api/user": {
+            "get": {
+                "tags": [
+                    "Auth"
+                ],
+                "summary": "Retorna o usuário autenticado",
+                "operationId": "8773b69ce5fe3c27ffbe67a75d83f9ee",
+                "responses": {
+                    "200": {
+                        "description": "Dados do usuário autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "integer",
+                                            "example": 3
+                                        },
+                                        "name": {
+                                            "type": "string",
+                                            "example": "Maria da Silva"
+                                        },
+                                        "email": {
+                                            "type": "string",
+                                            "format": "email",
+                                            "example": "maria@email.com"
+                                        },
+                                        "email_verified_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": null,
+                                            "nullable": true
+                                        },
+                                        "phone": {
+                                            "type": "string",
+                                            "example": "85999990000",
+                                            "nullable": true
+                                        },
+                                        "role": {
+                                            "type": "string",
+                                            "example": "cliente",
+                                            "enum": [
+                                                "cliente",
+                                                "admin"
+                                            ]
+                                        },
+                                        "created_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-07-10T12:00:00.000000Z"
+                                        },
+                                        "updated_at": {
+                                            "type": "string",
+                                            "format": "date-time",
+                                            "example": "2026-07-10T12:00:00.000000Z"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
         "/api/logout": {
             "post": {
                 "tags": [
@@ -304,54 +668,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "nome": {
-                                                "type": "string",
-                                                "example": "Dr. João Cardoso"
-                                            },
-                                            "crm": {
-                                                "type": "string",
-                                                "example": "CRM-CE 12345"
-                                            },
-                                            "email": {
-                                                "type": "string",
-                                                "format": "email",
-                                                "example": "joao.cardoso@hospital.com",
-                                                "nullable": true
-                                            },
-                                            "telefone": {
-                                                "type": "string",
-                                                "example": "85999990000",
-                                                "nullable": true
-                                            },
-                                            "especialidade_id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "specialty": {
-                                                "properties": {
-                                                    "id": {
-                                                        "type": "integer",
-                                                        "example": 1
-                                                    },
-                                                    "nome": {
-                                                        "type": "string",
-                                                        "example": "Cardiologia"
-                                                    },
-                                                    "descricao": {
-                                                        "type": "string",
-                                                        "example": "Diagnóstico e tratamento de doenças do coração",
-                                                        "nullable": true
-                                                    }
-                                                },
-                                                "type": "object"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "$ref": "#/components/schemas/Doctor"
                                     }
                                 }
                             }
@@ -359,6 +676,220 @@
                     },
                     "401": {
                         "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Médicos"
+                ],
+                "summary": "Cadastra um médico (apenas admin)",
+                "operationId": "d87c8e6a50fbf918c1ee379c6d5c7854",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "crm",
+                                    "especialidade_id"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Dra. Ana Lima",
+                                        "maxLength": 255
+                                    },
+                                    "crm": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "example": "CRM-CE 54321",
+                                        "maxLength": 20
+                                    },
+                                    "email": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ana.lima@hospital.com",
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    },
+                                    "telefone": {
+                                        "type": "string",
+                                        "example": "85988887777",
+                                        "nullable": true,
+                                        "maxLength": 20
+                                    },
+                                    "especialidade_id": {
+                                        "description": "ID de especialidade existente",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Médico criado (sem o objeto specialty; use GET /api/medicos para obtê-lo)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Doctor"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "422": {
+                        "description": "Erro de validação (campos obrigatórios, crm/email já cadastrados, especialidade inexistente)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/medicos/{doctor}": {
+            "put": {
+                "tags": [
+                    "Médicos"
+                ],
+                "summary": "Atualiza um médico (apenas admin)",
+                "operationId": "6ed6b11b50401a437a50b53bfe5d06e7",
+                "parameters": [
+                    {
+                        "name": "doctor",
+                        "in": "path",
+                        "description": "ID do médico",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Todos os campos são opcionais, mas nome, crm e especialidade_id não podem vir vazios se enviados",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Dra. Ana Lima",
+                                        "maxLength": 255
+                                    },
+                                    "crm": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "example": "CRM-CE 54321",
+                                        "maxLength": 20
+                                    },
+                                    "email": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "format": "email",
+                                        "example": "ana.lima@hospital.com",
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    },
+                                    "telefone": {
+                                        "type": "string",
+                                        "example": "85988887777",
+                                        "nullable": true,
+                                        "maxLength": 20
+                                    },
+                                    "especialidade_id": {
+                                        "description": "ID de especialidade existente",
+                                        "type": "integer",
+                                        "example": 1
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Médico atualizado (sem o objeto specialty)",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Doctor"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Médico não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação (crm/email já cadastrados em outro médico, especialidade inexistente)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Médicos"
+                ],
+                "summary": "Exclui um médico (apenas admin)",
+                "operationId": "0f9c299bff57f3c3766e55a1b6f12a64",
+                "parameters": [
+                    {
+                        "name": "doctor",
+                        "in": "path",
+                        "description": "ID do médico",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Médico excluído com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Médico não encontrado"
+                    },
+                    "409": {
+                        "description": "Médico possui agendamentos vinculados"
+                    },
+                    "500": {
+                        "description": "Erro interno ao excluir"
                     }
                 },
                 "security": [
@@ -383,22 +914,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "nome": {
-                                                "type": "string",
-                                                "example": "Eletrocardiograma"
-                                            },
-                                            "valor": {
-                                                "description": "Valor em reais, serializado como string decimal",
-                                                "type": "string",
-                                                "example": "150.00"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "$ref": "#/components/schemas/Exam"
                                     }
                                 }
                             }
@@ -406,6 +922,182 @@
                     },
                     "401": {
                         "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Exames"
+                ],
+                "summary": "Cadastra um exame (apenas admin)",
+                "operationId": "9bf1526291229e973c000f2a34a2b786",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome",
+                                    "valor"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Hemograma completo",
+                                        "maxLength": 255
+                                    },
+                                    "valor": {
+                                        "description": "Enviar como número; na resposta é serializado como string decimal",
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 80,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Exame criado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Exam"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/exames/{exam}": {
+            "put": {
+                "tags": [
+                    "Exames"
+                ],
+                "summary": "Atualiza um exame (apenas admin)",
+                "operationId": "18eb3ecdb51278147b521e058fcde11c",
+                "parameters": [
+                    {
+                        "name": "exam",
+                        "in": "path",
+                        "description": "ID do exame",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Todos os campos são opcionais, mas não podem vir vazios se enviados",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Hemograma completo",
+                                        "maxLength": 255
+                                    },
+                                    "valor": {
+                                        "type": "number",
+                                        "format": "float",
+                                        "example": 90,
+                                        "minimum": 0
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Exame atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Exam"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Exame não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Exames"
+                ],
+                "summary": "Exclui um exame (apenas admin)",
+                "operationId": "0060dce49b8b093326a5a8acd8d0b72b",
+                "parameters": [
+                    {
+                        "name": "exam",
+                        "in": "path",
+                        "description": "ID do exame",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Exame excluído com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Exame não encontrado"
+                    },
+                    "409": {
+                        "description": "Exame possui agendamentos vinculados"
+                    },
+                    "500": {
+                        "description": "Erro interno ao excluir"
                     }
                 },
                 "security": [
@@ -430,17 +1122,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "nome": {
-                                                "type": "string",
-                                                "example": "Unimed"
-                                            }
-                                        },
-                                        "type": "object"
+                                        "$ref": "#/components/schemas/HealthPlan"
                                     }
                                 }
                             }
@@ -448,6 +1130,214 @@
                     },
                     "401": {
                         "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Planos de Saúde"
+                ],
+                "summary": "Cadastra um plano de saúde (apenas admin)",
+                "operationId": "b9f71391f376ad9eb4c24e473f2a8a3d",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "example": "Hapvida",
+                                        "maxLength": 255
+                                    },
+                                    "ativo": {
+                                        "description": "Opcional; default true",
+                                        "type": "boolean",
+                                        "example": true
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Plano criado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthPlanAdmin"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "422": {
+                        "description": "Erro de validação (nome já cadastrado)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/planos-saude/{healthPlan}": {
+            "put": {
+                "tags": [
+                    "Planos de Saúde"
+                ],
+                "summary": "Atualiza um plano de saúde (apenas admin)",
+                "operationId": "4df542bad7b4b6b398172d7cd444fc90",
+                "parameters": [
+                    {
+                        "name": "healthPlan",
+                        "in": "path",
+                        "description": "ID do plano de saúde",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Todos os campos são opcionais, mas nome não pode vir vazio se enviado. Use ativo para ativar/desativar o plano.",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nome": {
+                                        "description": "Único",
+                                        "type": "string",
+                                        "example": "Hapvida",
+                                        "maxLength": 255
+                                    },
+                                    "ativo": {
+                                        "type": "boolean",
+                                        "example": false
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Plano atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/HealthPlanAdmin"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Plano não encontrado"
+                    },
+                    "422": {
+                        "description": "Erro de validação (nome já cadastrado em outro plano)"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Planos de Saúde"
+                ],
+                "summary": "Exclui um plano de saúde (apenas admin)",
+                "operationId": "aace5b8142cafe7c9f9abe9c201a23de",
+                "parameters": [
+                    {
+                        "name": "healthPlan",
+                        "in": "path",
+                        "description": "ID do plano de saúde",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Plano de saúde excluído com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Plano não encontrado"
+                    },
+                    "409": {
+                        "description": "Plano possui agendamentos vinculados"
+                    },
+                    "500": {
+                        "description": "Erro interno ao excluir"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/planos-saude/all": {
+            "get": {
+                "tags": [
+                    "Planos de Saúde"
+                ],
+                "summary": "Lista todos os planos de saúde, incluindo inativos (apenas admin)",
+                "operationId": "369a923fd6457b904de4fbbf1982f302",
+                "responses": {
+                    "200": {
+                        "description": "Lista completa de planos, com o campo ativo",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/HealthPlanAdmin"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
                     }
                 },
                 "security": [
@@ -472,22 +1362,7 @@
                                 "schema": {
                                     "type": "array",
                                     "items": {
-                                        "properties": {
-                                            "id": {
-                                                "type": "integer",
-                                                "example": 1
-                                            },
-                                            "nome": {
-                                                "type": "string",
-                                                "example": "Cardiologia"
-                                            },
-                                            "descricao": {
-                                                "type": "string",
-                                                "example": "Diagnóstico e tratamento de doenças do coração",
-                                                "nullable": true
-                                            }
-                                        },
-                                        "type": "object"
+                                        "$ref": "#/components/schemas/Specialty"
                                     }
                                 }
                             }
@@ -495,6 +1370,180 @@
                     },
                     "401": {
                         "description": "Não autenticado"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Especialidades"
+                ],
+                "summary": "Cria uma especialidade (apenas admin)",
+                "operationId": "7cb2f109f822af86f503d544f37d2d84",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "required": [
+                                    "nome"
+                                ],
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Dermatologia",
+                                        "maxLength": 255
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Cuidados com a pele",
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Especialidade criada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Specialty"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/especialidades/{specialty}": {
+            "put": {
+                "tags": [
+                    "Especialidades"
+                ],
+                "summary": "Atualiza uma especialidade (apenas admin)",
+                "operationId": "b8f4c40b7358bed11feff8f3168be738",
+                "parameters": [
+                    {
+                        "name": "specialty",
+                        "in": "path",
+                        "description": "ID da especialidade",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "description": "Todos os campos são opcionais, mas nome não pode vir vazio se enviado",
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "properties": {
+                                    "nome": {
+                                        "type": "string",
+                                        "example": "Dermatologia",
+                                        "maxLength": 255
+                                    },
+                                    "descricao": {
+                                        "type": "string",
+                                        "example": "Cuidados com a pele",
+                                        "nullable": true,
+                                        "maxLength": 255
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Especialidade atualizada",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Specialty"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Especialidade não encontrada"
+                    },
+                    "422": {
+                        "description": "Erro de validação"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Especialidades"
+                ],
+                "summary": "Exclui uma especialidade (apenas admin)",
+                "operationId": "6d0d77a059fa19ccc926d55e7b9418b2",
+                "parameters": [
+                    {
+                        "name": "specialty",
+                        "in": "path",
+                        "description": "ID da especialidade",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Especialidade excluída com sucesso"
+                    },
+                    "401": {
+                        "description": "Não autenticado"
+                    },
+                    "403": {
+                        "description": "Acesso restrito a administradores"
+                    },
+                    "404": {
+                        "description": "Especialidade não encontrada"
+                    },
+                    "409": {
+                        "description": "Especialidade possui médicos vinculados"
+                    },
+                    "500": {
+                        "description": "Erro interno ao excluir"
                     }
                 },
                 "security": [
@@ -526,7 +1575,30 @@
                 ],
                 "responses": {
                     "200": {
-                        "description": "Lista paginada: registros em \"data\", navegação em \"links\" e \"meta\""
+                        "description": "Lista paginada de usuários",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/User"
+                                            }
+                                        },
+                                        "links": {
+                                            "description": "first, last, prev, next",
+                                            "type": "object"
+                                        },
+                                        "meta": {
+                                            "description": "current_page, last_page, per_page, total, path...",
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
                     },
                     "401": {
                         "description": "Não autenticado"
@@ -544,6 +1616,257 @@
         }
     },
     "components": {
+        "schemas": {
+            "Appointment": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "user_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "tipo": {
+                        "type": "string",
+                        "example": "consulta",
+                        "enum": [
+                            "consulta",
+                            "retorno",
+                            "exame"
+                        ]
+                    },
+                    "medico_id": {
+                        "description": "Presente em consulta/retorno; null em exame",
+                        "type": "integer",
+                        "example": 1,
+                        "nullable": true
+                    },
+                    "exame_id": {
+                        "description": "Presente em exame; null em consulta/retorno",
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "agendamento_origem_id": {
+                        "description": "Consulta de origem, quando tipo=retorno",
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "plano_id": {
+                        "type": "integer",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2026-07-15"
+                    },
+                    "time": {
+                        "type": "string",
+                        "example": "09:00:00"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "pendente",
+                        "enum": [
+                            "pendente",
+                            "confirmado",
+                            "cancelado",
+                            "falta"
+                        ]
+                    },
+                    "forma_pagamento": {
+                        "type": "string",
+                        "example": "particular",
+                        "enum": [
+                            "particular",
+                            "plano"
+                        ]
+                    },
+                    "observation": {
+                        "type": "string",
+                        "example": null,
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-07-10T12:00:00.000000Z"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "doctor": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Doctor"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Presente em consulta/retorno, quando a relação é carregada"
+                    },
+                    "exam": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/Exam"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Presente em exame, quando a relação é carregada"
+                    },
+                    "healthPlan": {
+                        "oneOf": [
+                            {
+                                "$ref": "#/components/schemas/HealthPlan"
+                            }
+                        ],
+                        "nullable": true,
+                        "description": "Presente apenas quando a relação é carregada"
+                    }
+                },
+                "type": "object"
+            },
+            "Doctor": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Dr. João Cardoso"
+                    },
+                    "crm": {
+                        "type": "string",
+                        "example": "CRM-CE 12345"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joao.cardoso@hospital.com",
+                        "nullable": true
+                    },
+                    "telefone": {
+                        "type": "string",
+                        "example": "85999990000",
+                        "nullable": true
+                    },
+                    "especialidade_id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "specialty": {
+                        "$ref": "#/components/schemas/Specialty"
+                    }
+                },
+                "type": "object"
+            },
+            "Exam": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Eletrocardiograma"
+                    },
+                    "valor": {
+                        "description": "Valor em reais, serializado como string decimal",
+                        "type": "string",
+                        "example": "150.00"
+                    }
+                },
+                "type": "object"
+            },
+            "HealthPlanAdmin": {
+                "description": "Plano de saúde na visão do admin, com o campo ativo",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/HealthPlan"
+                    },
+                    {
+                        "properties": {
+                            "ativo": {
+                                "type": "boolean",
+                                "example": false
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
+            "HealthPlan": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Unimed"
+                    }
+                },
+                "type": "object"
+            },
+            "Specialty": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "nome": {
+                        "type": "string",
+                        "example": "Cardiologia"
+                    },
+                    "descricao": {
+                        "type": "string",
+                        "example": "Diagnóstico e tratamento de doenças do coração",
+                        "nullable": true
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Maria da Silva"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "maria@email.com"
+                    },
+                    "phone": {
+                        "type": "string",
+                        "example": "85999990000",
+                        "nullable": true
+                    },
+                    "role": {
+                        "type": "string",
+                        "example": "cliente",
+                        "enum": [
+                            "cliente",
+                            "admin"
+                        ]
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2026-07-10T12:00:00.000000Z"
+                    }
+                },
+                "type": "object"
+            }
+        },
         "securitySchemes": {
             "sanctum": {
                 "type": "http",
