@@ -70,12 +70,6 @@ class AppointmentController extends Controller
                     'message' => 'Apenas agendamentos pendentes podem ser confirmados'
                 ], 409);
             }
-            if ($appointment->scheduleAt->isPast()) {
-                return response()->json([
-                    'message' => 'Não é possível confirmar um agendamento com data/horário no passado'
-                ], 422);
-            }
-
             $appointment->update(['status' => AppointmentStatus::Confirmed]);
             return (new AppointmentResource($appointment))->response();
         });
@@ -185,9 +179,9 @@ class AppointmentController extends Controller
         return DB::transaction(function () use ($appointment) {
             $appointment = Appointment::lockForUpdate()->findOrFail($appointment->id);
 
-            if ($appointment->status !== AppointmentStatus::Confirmed) {
+            if (!in_array($appointment->status, [AppointmentStatus::Pending, AppointmentStatus::Confirmed], true)) {
                 return response()->json([
-                    'message' => 'Apenas agendamentos confirmados podem ser marcado como falta.'
+                    'message' => 'Apenas agendamentos pendentes ou confirmados podem ser marcado como falta.'
                 ], 409);
             }
             if (!$appointment->scheduleAt->isPast()) {
