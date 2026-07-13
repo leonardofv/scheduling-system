@@ -62,6 +62,6 @@ class AuthController extends Controller
 
     public function users()
     {
-        return UserResource::collection(User::paginate(15));
+        return UserResource::collection(User::orderBy('id')->paginate(15));
     }
 }
