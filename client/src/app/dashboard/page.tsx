@@ -1,4 +1,4 @@
- "use client";
+"use client";
 
 import { useRouter } from "next/navigation";
 
@@ -83,7 +83,6 @@ export default function DashboardPage() {
             </button>
           </div>
         </div>
-      </section>
 
       <section id="secoes" className="grid gap-6 xl:grid-cols-12 xl:items-start">
         <aside className="space-y-4 xl:col-span-4">
