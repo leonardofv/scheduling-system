@@ -8,11 +8,7 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8">
         {/* Hero Section */}
-<<<<<<< Updated upstream
-        <div id="inicio" className="bg-gradient-to-br from-blue-50 to-emerald-100 rounded-2xl p-8 border border-emerald-200">
-=======
         <div id="inicio" className="bg-linear-to-br from-blue-50 to-indigo-100 rounded-2xl p-8 border border-indigo-200">
->>>>>>> Stashed changes
           <div className="max-w-2xl">
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Bem-vindo ao Dashboard!
