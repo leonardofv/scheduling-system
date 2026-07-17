@@ -72,7 +72,6 @@ export default function AppointmentsPage() {
           closeModal();
         }
       } else if (modalState.mode === "edit") {
-        // Implementar edição quando backend estiver pronto
         alert("Funcionalidade de edição em desenvolvimento");
         closeModal();
       }

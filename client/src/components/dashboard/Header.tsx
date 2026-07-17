@@ -120,39 +120,6 @@ export default function Header() {
                 }}
                 className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 border-transparent hover:border-emerald-100 transition-colors"
               >
-                Agendamentos
-              </button>
-              <button
-                onClick={() => {
-                  const pathname = window.location.pathname;
-                  if (pathname === "/dashboard") {
-                    const section = document.getElementById("secoes");
-                    if (section) {
-                      section.scrollIntoView({ behavior: "smooth" });
-                    }
-                  } else {
-                    router.push("/dashboard/services");
-                  }
-                }}
-                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
-              >
-                Serviços
-              </button>
-              <button
-                onClick={() => {
-                  const pathname = window.location.pathname;
-                  if (pathname === "/dashboard") {
-                    const section = document.getElementById("secoes");
-                    if (section) {
-                      section.scrollIntoView({ behavior: "smooth" });
-                    }
-                  } else {
-                    router.push("/dashboard/reports");
-                  }
-                }}
-                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
-              >
-                Relatórios
               </button>
             </nav>
           </div>

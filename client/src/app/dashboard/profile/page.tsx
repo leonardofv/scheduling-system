@@ -73,7 +73,7 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6">
+    <div className="mx-auto max-w-3xl space-y-6">
       <div>
         <p className="text-sm font-semibold text-emerald-700">MINHA CONTA</p>
         <h1 className="mt-1 text-3xl font-bold text-gray-900">Meu perfil</h1>
@@ -81,7 +81,7 @@ export default function ProfilePage() {
       </div>
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <aside className="rounded-2xl bg-gradient-to-br from-emerald-700 to-emerald-900 p-6 text-white lg:col-span-2">
+        <aside className="rounded-2xl bg-linear-to-br from-emerald-700 to-emerald-900 p-6 text-white lg:col-span-2">
           <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-2xl font-bold ring-1 ring-white/20">
             {profile.name.charAt(0).toUpperCase()}
           </div>
