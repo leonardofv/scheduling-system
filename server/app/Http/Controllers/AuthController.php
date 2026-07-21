@@ -52,6 +52,18 @@ class AuthController extends Controller
         return new UserResource($request->user());
     }
 
+    public function updatePhoto(Request $request): JsonResponse
+    {
+        $request->validate([
+            'photo' => 'required|image|max:2048'
+        ]);
+
+        $path = $request->file('photo')->store('avatars', 'public');
+        $request->user()->update(['photo_path' => $path]);
+
+        return response()->json(new UserResource($request->user()));
+    }
+
     public function logout(Request $request): JsonResponse
     {
         $request->user()->currentAccessToken()->delete();
