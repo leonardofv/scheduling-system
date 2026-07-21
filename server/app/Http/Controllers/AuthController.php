@@ -10,6 +10,7 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Validation\ValidationException;
 
 class AuthController extends Controller
@@ -58,10 +59,16 @@ class AuthController extends Controller
             'photo' => 'required|image|max:2048'
         ]);
 
+        $user = $request->user();
+
+        if ($user->photo_path) {
+            Storage::disk('public')->delete($user->photo_path);
+        }
+
         $path = $request->file('photo')->store('avatars', 'public');
         $request->user()->update(['photo_path' => $path]);
 
-        return response()->json(new UserResource($request->user()));
+        return response()->json(new UserResource($user));
     }
 
     public function logout(Request $request): JsonResponse
