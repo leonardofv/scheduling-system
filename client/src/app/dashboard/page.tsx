@@ -96,44 +96,6 @@ function FeedbackSection() {
     setSubmitted(true);
     setText("");
   }
-
-  if (submitted) {
-    return (
-      <section className="rounded-2xl border border-emerald-300 p-7 shadow-sm sm:p-17">
-        <p className="text-sm font-semibold text-emerald-700">DEIXE AQUI SEU FEEDBACK</p>
-        <h2 className="mt-3 text-lg font-bold text-emerald-700">Obrigado pelo seu feedback!</h2>
-        <p className="mt-1 text-sm text-emerald-700">Sua opinião é muito importante para nós.</p>
-        <button
-          onClick={() => setSubmitted(false)}
-          className="mt-4 text-sm font-semibold text-emerald-700 underline hover:text-emerald-300"
-        >
-          Enviar outro
-        </button>
-      </section>
-    );
-  }
-
-  return (
-    <section className="rounded-2xl border border-emerald-300 p-7 shadow-sm sm:p-8">
-      <p className="text-sm font-semibold text-emerald-700">DEIXE AQUI SEU FEEDBACK</p>
-      <h2 className="mt-1 text-2xl font-bold text-gray-900"></h2>
-      <form onSubmit={handleSubmit} className="mt-4 space-y-3">
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          rows={4}
-          placeholder="Escreva seu feedback aqui..."
-          className="w-full resize-none rounded-lg border border-emerald-300 px-4 py-3 text-sm text-emerald-700 placeholder-emerald-700 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-white/50"
-        />
-        <button
-          type="submit"
-          className="w-full rounded-lg bg-emerald-700 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-50"
-        >
-          Enviar
-        </button>
-      </form>
-    </section>
-  );
 }
 
 export default function DashboardPage() {
@@ -211,7 +173,7 @@ export default function DashboardPage() {
       </div>
 
       {/* Stats */}
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 rounded-xl border border-emerald-300 ">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 rounded-xl">
         <StatCard
           label="Total"
           value={appointments.length}
@@ -266,9 +228,6 @@ export default function DashboardPage() {
               </div>
             </button>
           ))}
-
-        {/* Feedback section */}
-          <FeedbackSection />
         </aside>
 
         <div className="space-y-6 xl:col-span-8">
@@ -369,9 +328,9 @@ export default function DashboardPage() {
       {/* Ajuda */}
       <section className="flex flex-col items-center gap-4 rounded-2xl border border-emerald-300 bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-white text-blue-600 shadow-sm">
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-blue-600">
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192L5.636 18.364M12 2.25a9.75 9.75 0 100 19.5 9.75 9.75 0 000-19.5z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
           <div>

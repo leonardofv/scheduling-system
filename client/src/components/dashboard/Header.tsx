@@ -13,6 +13,7 @@ export default function Header() {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [dropdownOpen, setDropdownOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -29,6 +30,9 @@ export default function Header() {
         if (res.ok) {
           const data = await res.json();
           setUser(data);
+          if (data.role === "admin") {
+            setIsAdmin(true);
+          }
         }
       } catch (error) {
         console.error("Erro ao buscar usuário:", error);
@@ -152,6 +156,17 @@ export default function Header() {
 
                 {dropdownOpen && (
                   <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg border border-gray-200 shadow-lg z-50">
+                    {isAdmin && (
+                      <button
+                        onClick={() => { setDropdownOpen(false); router.push("/dashboard/admin"); }}
+                        className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
+                      >
+                        <svg className="w-4 h-4 text-violet-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                        </svg>
+                        Painel Admin
+                      </button>
+                    )}
                     <button
                       onClick={handleProfileClick}
                       className="w-full text-left px-4 py-3 text-sm text-gray-900 hover:bg-gray-50 flex items-center gap-2 border-b border-gray-100"
