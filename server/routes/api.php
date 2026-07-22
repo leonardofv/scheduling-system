@@ -16,6 +16,7 @@ Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:au
 Route::middleware('auth:sanctum')->group(function() {
 
     Route::get('/user', [AuthController::class, 'me']);
+    Route::post('/user/photo', [AuthController::class, 'updatePhoto']);
     Route::post('/logout', [AuthController::class, 'logout']);
     Route::post('/agendamentos', [AppointmentController::class, 'store']);
     Route::get('/agendamentos', [AppointmentController::class, 'list']);

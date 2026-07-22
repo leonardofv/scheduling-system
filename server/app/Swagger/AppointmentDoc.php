@@ -106,7 +106,6 @@ class AppointmentDoc
             new OA\Response(response: 403, description: 'Acesso restrito a administradores'),
             new OA\Response(response: 404, description: 'Agendamento não encontrado'),
             new OA\Response(response: 409, description: 'Apenas agendamentos pendentes podem ser confirmados'),
-            new OA\Response(response: 422, description: 'Data/horário do agendamento já passou'),
         ]
     )]
     public function confirm(): void {}
@@ -124,7 +123,7 @@ class AppointmentDoc
             new OA\Response(response: 401, description: 'Não autenticado'),
             new OA\Response(response: 403, description: 'Acesso restrito a administradores'),
             new OA\Response(response: 404, description: 'Agendamento não encontrado'),
-            new OA\Response(response: 409, description: 'Apenas agendamentos confirmados podem ser marcados como falta'),
+            new OA\Response(response: 409, description: 'Apenas agendamentos pendentes ou confirmados podem ser marcados como falta'),
             new OA\Response(response: 422, description: 'Não é possível marcar falta antes do horário do agendamento'),
         ]
     )]
