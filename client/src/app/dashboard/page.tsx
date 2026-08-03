@@ -19,43 +19,6 @@ interface User {
   email: string;
 }
 
-const quickLinks = [
-  {
-    title: "Agendamentos",
-    description: "Consulte seus horários e acompanhe cada atendimento.",
-    href: "/dashboard/appointments",
-    color: "bg-blue-100 text-blue-700",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Serviços",
-    description: "Encontre consultas, exames e especialidades disponíveis.",
-    href: "/dashboard/services",
-    color: "bg-emerald-100 text-emerald-700",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-      </svg>
-    ),
-  },
-  {
-    title: "Relatórios",
-    description: "Acompanhe o histórico e a organização dos seus cuidados.",
-    href: "/dashboard/reports",
-    color: "bg-violet-100 text-violet-700",
-    icon: (
-      <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" 
-          d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-      </svg>
-    ),
-  },
-];
-
 function getStatusColor(status: string) {
   switch (status) {
     case "confirmado":
@@ -200,37 +163,9 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Layout: quickLinks + conteúdo */}
-      <section className="grid gap-6 xl:grid-cols-12 xl:items-start">
-        <aside className="space-y-4 xl:col-span-4">
-          <div>
-            <p className="text-sm font-semibold text-emerald-700">ACESSO RÁPIDO</p>
-            <h2 className="mt-1 text-2xl font-bold text-gray-900">Tudo ao seu alcance</h2>
-          </div>
-
-          {quickLinks.map((link) => (
-            <button
-              key={link.title}
-              onClick={() => router.push(link.href)}
-              className="group w-full rounded-xl border border-gray-200 bg-white p-5 text-left shadow-sm transition-all hover:-translate-y-0.5 hover:border-emerald-200 hover:shadow-md focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
-            >
-              <div className="flex items-start gap-4">
-                <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${link.color}`}>
-                  {link.icon}
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center justify-between gap-3">
-                    <h3 className="font-semibold text-gray-900">{link.title}</h3>
-                    <span className="text-lg text-gray-400 transition-transform group-hover:translate-x-0.5 group-hover:text-emerald-600">→</span>
-                  </div>
-                  <p className="mt-1 text-sm leading-5 text-gray-600">{link.description}</p>
-                </div>
-              </div>
-            </button>
-          ))}
-        </aside>
-
-        <div className="space-y-6 xl:col-span-8">
+      {/* Conteúdo */}
+      <section className="grid gap-6 xl:items-start">
+        <div className="space-y-6">
           {/* Próximos Agendamentos */}
           <section className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center justify-between mb-6">
@@ -292,35 +227,6 @@ export default function DashboardPage() {
                 ))}
               </div>
             )}
-          </section>
-
-          {/* Como funciona */}
-          <section className="rounded-2xl border border-emerald-300 bg-white p-7 shadow-sm sm:p-10.5">
-            <div className="flex items-start justify-between gap-4">
-              <div>
-                <p className="text-sm font-semibold text-emerald-700">COMO FUNCIONA</p>
-                <h2 className="mt-1 text-2xl font-bold text-gray-900">Uma rotina de cuidado mais leve</h2>
-              </div>
-              <div className="hidden h-11 w-11 items-center justify-center rounded-full bg-emerald-100 text-emerald-700 sm:flex">
-                <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-            </div>
-
-            <div className="mt-7 grid gap-5 md:grid-cols-3">
-              {[
-                ["1", "Escolha o serviço", "Consulte especialidades, médicos e exames disponíveis."],
-                ["2", "Faça seu agendamento", "Escolha o melhor horário e confirme em poucos cliques."],
-                ["3", "Acompanhe seus cuidados", "Mantenha seu histórico organizado sempre que precisar."],
-              ].map(([step, title, description]) => (
-                <div key={step} className="rounded-xl bg-gray-50 p-4">
-                  <span className="flex h-8 w-8 items-center justify-center rounded-full bg-emerald-600 text-sm font-bold text-white">{step}</span>
-                  <h3 className="mt-4 font-semibold text-gray-900">{title}</h3>
-                  <p className="mt-1 text-sm leading-5 text-gray-600">{description}</p>
-                </div>
-              ))}
-            </div>
           </section>
         </div>
       </section>

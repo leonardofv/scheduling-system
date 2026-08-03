@@ -84,50 +84,7 @@ export default function Header() {
   return (
     <header className="bg-emerald-800 shadow-sm">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-8">
-            <button
-              title="AgendaFácil"
-              onClick={() => router.push("/dashboard")}
-              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 hover:bg-white/25 transition-colors"
-            >
-              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
-            </button>
-
-            <nav className="flex items-center gap-8">
-              <button
-                onClick={() => {
-                  const pathname = window.location.pathname;
-                  if (pathname === "/dashboard") {
-                    window.scrollTo({ top: 0, behavior: "smooth" });
-                  } else {
-                    router.push("/dashboard");
-                  }
-                }}
-                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 transition-colors"
-              >
-                Página Inicial
-              </button>
-              <button
-                onClick={() => {
-                  const pathname = window.location.pathname;
-                  if (pathname === "/dashboard") {
-                    const section = document.getElementById("secoes");
-                    if (section) {
-                      section.scrollIntoView({ behavior: "smooth" });
-                    }
-                  } else {
-                    router.push("/dashboard/appointments");
-                  }
-                }}
-                className="pb-0 px-1 text-sm font-medium text-white hover:text-emerald-100 border-transparent hover:border-emerald-100 transition-colors"
-              >
-              </button>
-            </nav>
-          </div>
-
+        <div className="flex items-center justify-end">
           <div className="flex items-center gap-6">
             {!loading && user && (
               <div className="relative" ref={dropdownRef}>
