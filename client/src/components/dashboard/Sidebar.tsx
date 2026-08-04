@@ -1,7 +1,6 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { useState } from "react";
 
 interface NavItem {
   label: string;
@@ -55,26 +54,17 @@ const navItems: NavItem[] = [
       </svg>
     ),
   },
-  {
-    label: "Perfil",
-    href: "/dashboard/profile",
-    icon: (
-      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-      </svg>
-    ),
-  },
 ];
 
 interface SidebarProps {
   collapsed: boolean;
-  onToggleCollapse: () => void;
+  mobileOpen: boolean;
+  onCloseMobile: () => void;
 }
 
-export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
+export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: SidebarProps) {
   const pathname = usePathname();
   const router = useRouter();
-  const [mobileOpen, setMobileOpen] = useState(false);
 
   function isActive(href: string) {
     return href === "/dashboard" ? pathname === href : pathname.startsWith(href);
@@ -82,25 +72,11 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile toggle */}
-      <button
-        onClick={() => setMobileOpen(!mobileOpen)}
-        className="lg:hidden fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg"
-      >
-        <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          {mobileOpen ? (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-          ) : (
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-          )}
-        </svg>
-      </button>
-
       {/* Overlay for mobile */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-30 bg-black/40"
-          onClick={() => setMobileOpen(false)}
+          onClick={onCloseMobile}
         />
       )}
 
@@ -111,36 +87,19 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
         } w-64 ${mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"}`}
       >
         <div className="p-4">
-          <div className={`mb-6 flex items-center gap-2 ${collapsed ? "lg:flex-col lg:gap-3" : "justify-between"}`}>
-            <div className="flex items-center gap-3">
-              <button
-                onClick={() => router.push("/dashboard")}
-                title="AgendaFácil"
-                className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 shrink-0 hover:bg-emerald-700 transition-colors"
-              >
-                <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </button>
-              <span className={`text-lg font-bold text-gray-900 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>
-                AgendaFácil
-              </span>
-            </div>
-
-            {/* Collapse toggle (desktop only) */}
+          <div className={`mb-6 flex items-center gap-3 ${collapsed ? "lg:flex-col" : ""}`}>
             <button
-              onClick={onToggleCollapse}
-              aria-label={collapsed ? "Expandir menu" : "Recolher menu"}
-              className="hidden lg:flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-gray-400 hover:bg-gray-100 hover:text-gray-700"
+              onClick={() => router.push("/dashboard")}
+              title="AgendaFácil"
+              className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-emerald-600 shrink-0 hover:bg-emerald-700 transition-colors"
             >
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                {collapsed ? (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                ) : (
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                )}
+              <svg className="w-5 h-5 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
               </svg>
             </button>
+            <span className={`text-lg font-bold text-gray-900 whitespace-nowrap ${collapsed ? "lg:hidden" : ""}`}>
+              AgendaFácil
+            </span>
           </div>
 
           <nav className="space-y-1">
@@ -149,7 +108,7 @@ export default function Sidebar({ collapsed, onToggleCollapse }: SidebarProps) {
                 key={item.href}
                 onClick={() => {
                   router.push(item.href);
-                  setMobileOpen(false);
+                  onCloseMobile();
                 }}
                 title={item.label}
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${

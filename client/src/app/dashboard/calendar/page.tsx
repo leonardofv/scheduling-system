@@ -132,7 +132,7 @@ export default function CalendarPage() {
                 month: "space-y-4",
                 month_caption:
                   "flex justify-center items-center h-9 relative px-10 font-semibold text-gray-900 capitalize",
-                nav: "flex items-center justify-between absolute inset-x-0 top-0 h-9",
+                nav: "flex items-center justify-between absolute inset-x-0  top-0 h-9",
                 button_previous:
                   "h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-emerald-50 hover:text-emerald-700",
                 button_next:

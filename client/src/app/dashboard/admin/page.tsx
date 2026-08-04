@@ -105,8 +105,8 @@ export default function AdminDashboardPage() {
       case "confirmado": return "bg-emerald-100 text-emerald-700";
       case "pendente": return "bg-yellow-100 text-yellow-700";
       case "cancelado": return "bg-red-100 text-red-700";
-      case "falta": return "bg-gray-100 text-gray-600";
-      default: return "bg-gray-100 text-gray-600";
+      case "falta": return "bg-gray-100 text-gray-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   }
 
@@ -216,7 +216,7 @@ export default function AdminDashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Dashboard Administrativo</h1>
-        <p className="text-gray-600 mt-1">Visão geral do sistema de agendamentos</p>
+        <p className="text-gray-800 mt-1">Visão geral do sistema de agendamentos</p>
       </div>
 
       {/* Stats grid */}
@@ -231,7 +231,7 @@ export default function AdminDashboardPage() {
               {card.icon}
             </div>
             <span className="text-2xl font-bold text-gray-900">{card.value}</span>
-            <p className="text-sm font-medium text-gray-600 mt-1">{card.label}</p>
+            <p className="text-sm font-medium text-gray-800 mt-1">{card.label}</p>
           </button>
         ))}
       </div>
@@ -241,7 +241,7 @@ export default function AdminDashboardPage() {
         <div className="flex items-center justify-between mb-4">
           <div>
             <h2 className="text-lg font-bold text-gray-900">Agendamentos Recentes</h2>
-            <p className="text-sm text-gray-500">Últimos 5 agendamentos cadastrados</p>
+            <p className="text-sm text-gray-700">Últimos 5 agendamentos cadastrados</p>
           </div>
           <button
             onClick={() => router.push("/dashboard/admin/appointments")}
@@ -252,7 +252,7 @@ export default function AdminDashboardPage() {
         </div>
 
         {recentAppointments.length === 0 ? (
-          <div className="text-center py-8 text-sm text-gray-500">
+          <div className="text-center py-8 text-sm text-gray-700">
             Nenhum agendamento encontrado.
           </div>
         ) : (
@@ -260,11 +260,11 @@ export default function AdminDashboardPage() {
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-gray-100">
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Paciente</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Tipo</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Data</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Horário</th>
-                  <th className="text-left py-3 px-2 font-medium text-gray-500">Status</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-700">Paciente</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-700">Tipo</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-700">Data</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-700">Horário</th>
+                  <th className="text-left py-3 px-2 font-medium text-gray-700">Status</th>
                 </tr>
               </thead>
               <tbody>
@@ -273,9 +273,9 @@ export default function AdminDashboardPage() {
                     <td className="py-3 px-2 font-medium text-gray-900">
                       {appt.user?.name ?? "—"}
                     </td>
-                    <td className="py-3 px-2 text-gray-600 capitalize">{appt.tipo}</td>
-                    <td className="py-3 px-2 text-gray-600">{formatDate(appt.date)}</td>
-                    <td className="py-3 px-2 text-gray-600">{appt.time?.slice(0, 5)}</td>
+                    <td className="py-3 px-2 text-gray-800 capitalize">{appt.tipo}</td>
+                    <td className="py-3 px-2 text-gray-800">{formatDate(appt.date)}</td>
+                    <td className="py-3 px-2 text-gray-800">{appt.time?.slice(0, 5)}</td>
                     <td className="py-3 px-2">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(appt.status)}`}>
                         {getStatusLabel(appt.status)}

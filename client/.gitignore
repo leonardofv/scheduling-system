@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# arquivos locais de instrução (não fazem parte do projeto)
+/AGENTS.md
+/CLAUDE.md
+/public/
+/src/app/icon.svg

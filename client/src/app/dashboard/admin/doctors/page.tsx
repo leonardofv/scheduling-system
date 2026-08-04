@@ -174,7 +174,7 @@ export default function AdminDoctorsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Médicos</h1>
-          <p className="text-gray-600 mt-1">Gerencie os médicos cadastrados no sistema</p>
+          <p className="text-gray-800 mt-1">Gerencie os médicos cadastrados no sistema</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -212,7 +212,7 @@ export default function AdminDoctorsPage() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
           </svg>
@@ -233,7 +233,7 @@ export default function AdminDoctorsPage() {
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-3 flex-wrap">
                       <h3 className="font-semibold text-gray-900">{doctor.nome}</h3>
-                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-600">
+                      <span className="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-gray-800">
                         CRM {doctor.crm}
                       </span>
                     </div>
@@ -243,7 +243,7 @@ export default function AdminDoctorsPage() {
                       </p>
                     )}
                     {(doctor.email || doctor.telefone) && (
-                      <div className="flex gap-4 mt-1 text-xs text-gray-500">
+                      <div className="flex gap-4 mt-1 text-xs text-gray-700">
                         {doctor.email && <span>{doctor.email}</span>}
                         {doctor.telefone && <span>{doctor.telefone}</span>}
                       </div>
@@ -369,7 +369,7 @@ export default function AdminDoctorsPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Excluir Médico?</h3>
-            <p className="text-sm text-gray-600 text-center mb-6">
+            <p className="text-sm text-gray-800 text-center mb-6">
               Esta ação não poderá ser desfeita. Se houver agendamentos vinculados, a exclusão será bloqueada.
             </p>
             <div className="flex gap-3">

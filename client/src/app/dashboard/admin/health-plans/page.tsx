@@ -135,7 +135,7 @@ export default function AdminHealthPlansPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Planos de Saúde</h1>
-          <p className="text-gray-600 mt-1">Gerencie os planos de saúde disponíveis</p>
+          <p className="text-gray-800 mt-1">Gerencie os planos de saúde disponíveis</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -173,7 +173,7 @@ export default function AdminHealthPlansPage() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
           </svg>
@@ -196,7 +196,7 @@ export default function AdminHealthPlansPage() {
                 className={`mt-2 inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
                   plan.ativo
                     ? "bg-emerald-100 text-emerald-700"
-                    : "bg-gray-100 text-gray-500"
+                    : "bg-gray-100 text-gray-700"
                 }`}
               >
                 {plan.ativo ? "Ativo" : "Inativo"}
@@ -284,7 +284,7 @@ export default function AdminHealthPlansPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Excluir Plano?</h3>
-            <p className="text-sm text-gray-600 text-center mb-6">
+            <p className="text-sm text-gray-800 text-center mb-6">
               Esta ação não poderá ser desfeita. Se houver agendamentos vinculados, a exclusão será bloqueada.
             </p>
             <div className="flex gap-3">

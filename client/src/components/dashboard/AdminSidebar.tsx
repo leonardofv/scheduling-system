@@ -108,9 +108,9 @@ export default function AdminSidebar() {
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar — abaixo do Header (z-index menor) para não sobrepor o topo fixo */}
       <aside
-        className={`fixed lg:sticky top-0 lg:top-24 z-40 h-screen lg:h-[calc(100vh-8rem)] w-64 shrink-0 bg-white border-r border-gray-200 overflow-y-auto transition-transform duration-200 ${
+        className={`fixed lg:sticky top-0 lg:top-24 z-30 h-screen lg:h-[calc(100vh-8rem)] w-64 shrink-0 bg-white border-r border-gray-200 overflow-y-auto transition-transform duration-200 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"
         }`}
       >
@@ -133,7 +133,7 @@ export default function AdminSidebar() {
                 className={`flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-colors ${
                   isActive(item.href)
                     ? "bg-emerald-100 text-emerald-800"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
+                    : "text-gray-800 hover:bg-gray-100 hover:text-gray-900"
                 }`}
               >
                 <span className={isActive(item.href) ? "text-emerald-700" : "text-gray-400"}>

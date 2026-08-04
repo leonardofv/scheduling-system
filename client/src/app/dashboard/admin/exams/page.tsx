@@ -145,7 +145,7 @@ export default function AdminExamsPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Exames</h1>
-          <p className="text-gray-600 mt-1">Gerencie os exames disponíveis no sistema</p>
+          <p className="text-gray-800 mt-1">Gerencie os exames disponíveis no sistema</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -183,7 +183,7 @@ export default function AdminExamsPage() {
       )}
 
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
           </svg>
@@ -249,7 +249,7 @@ export default function AdminExamsPage() {
                   placeholder="Ex: 150,00"
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none"
                 />
-                <p className="text-xs text-gray-400 mt-1">Use vírgula para centavos (ex: 150,00)</p>
+                <p className="text-xs text-gray-600 mt-1">Use vírgula para centavos (ex: 150,00)</p>
               </div>
             </div>
             <div className="flex gap-3 mt-6">
@@ -283,7 +283,7 @@ export default function AdminExamsPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Excluir Exame?</h3>
-            <p className="text-sm text-gray-600 text-center mb-6">
+            <p className="text-sm text-gray-800 text-center mb-6">
               Esta ação não poderá ser desfeita. Se houver agendamentos vinculados, a exclusão será bloqueada.
             </p>
             <div className="flex gap-3">

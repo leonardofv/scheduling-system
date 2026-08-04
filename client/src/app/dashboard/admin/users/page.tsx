@@ -80,7 +80,7 @@ export default function AdminUsersPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Usuários</h1>
-        <p className="text-gray-600 mt-1">Gerencie os usuários cadastrados no sistema</p>
+        <p className="text-gray-800 mt-1">Gerencie os usuários cadastrados no sistema</p>
       </div>
 
       {error && (
@@ -105,17 +105,17 @@ export default function AdminUsersPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Nome</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Email</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Telefone</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-4 font-semibold text-gray-600">Cadastro</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-800">Nome</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-800">Email</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-800">Telefone</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-800">Tipo</th>
+                <th className="text-left py-3 px-4 font-semibold text-gray-800">Cadastro</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="py-12 text-center text-gray-500">
+                  <td colSpan={5} className="py-12 text-center text-gray-700">
                     {search ? "Nenhum usuário encontrado para essa busca." : "Nenhum usuário cadastrado."}
                   </td>
                 </tr>
@@ -130,8 +130,8 @@ export default function AdminUsersPage() {
                         <span className="font-medium text-gray-900">{user.name}</span>
                       </div>
                     </td>
-                    <td className="py-3 px-4 text-gray-600">{user.email}</td>
-                    <td className="py-3 px-4 text-gray-600">{user.phone || "—"}</td>
+                    <td className="py-3 px-4 text-gray-800">{user.email}</td>
+                    <td className="py-3 px-4 text-gray-800">{user.phone || "—"}</td>
                     <td className="py-3 px-4">
                       <span
                         className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${
@@ -143,7 +143,7 @@ export default function AdminUsersPage() {
                         {formatRole(user.role)}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-500 text-xs">{formatDate(user.created_at)}</td>
+                    <td className="py-3 px-4 text-gray-700 text-xs">{formatDate(user.created_at)}</td>
                   </tr>
                 ))
               )}
@@ -162,7 +162,7 @@ export default function AdminUsersPage() {
           >
             Anterior
           </button>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-800">
             Página {page} de {lastPage}
           </span>
           <button

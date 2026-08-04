@@ -134,8 +134,8 @@ export default function AdminAppointmentsPage() {
       case "confirmado": return "bg-emerald-100 text-emerald-700";
       case "pendente": return "bg-yellow-100 text-yellow-700";
       case "cancelado": return "bg-red-100 text-red-700";
-      case "falta": return "bg-gray-100 text-gray-600";
-      default: return "bg-gray-100 text-gray-600";
+      case "falta": return "bg-gray-100 text-gray-800";
+      default: return "bg-gray-100 text-gray-800";
     }
   }
 
@@ -187,7 +187,7 @@ export default function AdminAppointmentsPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Gerenciar Agendamentos</h1>
-        <p className="text-gray-600 mt-1">Confirme, marque falta, cancele ou exclua agendamentos</p>
+        <p className="text-gray-800 mt-1">Confirme, marque falta, cancele ou exclua agendamentos</p>
       </div>
 
       {error && (
@@ -227,19 +227,19 @@ export default function AdminAppointmentsPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Paciente</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Tipo</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Médico/Exame</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Data</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Horário</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Status</th>
-                <th className="text-left py-3 px-3 font-semibold text-gray-600">Ações</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Paciente</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Tipo</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Médico/Exame</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Data</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Horário</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Status</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-500">
+                  <td colSpan={7} className="py-12 text-center text-gray-700">
                     {search || statusFilter ? "Nenhum agendamento encontrado para essa busca." : "Nenhum agendamento cadastrado."}
                   </td>
                 </tr>
@@ -252,11 +252,11 @@ export default function AdminAppointmentsPage() {
                     <td className="py-3 px-3">
                       <span className="capitalize">{getTipoLabel(appt.tipo)}</span>
                     </td>
-                    <td className="py-3 px-3 text-gray-600">
+                    <td className="py-3 px-3 text-gray-800">
                       {appt.medico?.nome ?? appt.exame?.nome ?? "—"}
                     </td>
-                    <td className="py-3 px-3 text-gray-600">{formatDate(appt.date)}</td>
-                    <td className="py-3 px-3 text-gray-600">{appt.time?.slice(0, 5)}</td>
+                    <td className="py-3 px-3 text-gray-800">{formatDate(appt.date)}</td>
+                    <td className="py-3 px-3 text-gray-800">{appt.time?.slice(0, 5)}</td>
                     <td className="py-3 px-3">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(appt.status)}`}>
                         {getStatusLabel(appt.status)}
@@ -314,7 +314,7 @@ export default function AdminAppointmentsPage() {
           >
             Anterior
           </button>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-800">
             Página {page} de {lastPage}
           </span>
           <button
@@ -353,7 +353,7 @@ export default function AdminAppointmentsPage() {
               {actionType === "delete" && "Excluir agendamento?"}
             </h3>
 
-            <p className="text-sm text-gray-600 text-center mb-4">
+            <p className="text-sm text-gray-800 text-center mb-4">
               {selectedAppointment.user?.name && <><strong>{selectedAppointment.user.name}</strong><br /></>}
               {getTipoLabel(selectedAppointment.tipo)} — {formatDate(selectedAppointment.date)} às {selectedAppointment.time?.slice(0, 5)}
             </p>
@@ -362,7 +362,7 @@ export default function AdminAppointmentsPage() {
               <div className="rounded-lg bg-red-50 p-3 text-sm text-red-700 mb-4">{actionError}</div>
             )}
 
-            <p className="text-xs text-gray-500 text-center mb-6">
+            <p className="text-xs text-gray-700 text-center mb-6">
               {actionType === "confirm" && "O paciente será notificado da confirmação."}
               {actionType === "no-show" && "O paciente não compareceu ao horário agendado."}
               {actionType === "cancel" && "O agendamento será cancelado."}

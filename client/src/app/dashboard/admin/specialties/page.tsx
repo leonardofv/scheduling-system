@@ -138,7 +138,7 @@ export default function AdminSpecialtiesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Especialidades</h1>
-          <p className="text-gray-600 mt-1">Gerencie as especialidades médicas do sistema</p>
+          <p className="text-gray-800 mt-1">Gerencie as especialidades médicas do sistema</p>
         </div>
         <button
           onClick={openCreateModal}
@@ -182,7 +182,7 @@ export default function AdminSpecialtiesPage() {
 
       {/* List */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-500">
+        <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
           </svg>
@@ -199,7 +199,7 @@ export default function AdminSpecialtiesPage() {
                 <div className="flex-1 min-w-0">
                   <h3 className="font-semibold text-gray-900">{specialty.nome}</h3>
                   {specialty.descricao && (
-                    <p className="mt-1 text-sm text-gray-600 line-clamp-2">{specialty.descricao}</p>
+                    <p className="mt-1 text-sm text-gray-800 line-clamp-2">{specialty.descricao}</p>
                   )}
                 </div>
               </div>
@@ -248,7 +248,7 @@ export default function AdminSpecialtiesPage() {
                   onChange={(e) => setFormDescricao(e.target.value)}
                   placeholder="Descrição opcional da especialidade"
                   rows={3}
-                  className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none resize-none"
+                  className="w-full px-4 py-2.5 border border-gray-800 rounded-lg text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none resize-none"
                 />
               </div>
             </div>
@@ -284,7 +284,7 @@ export default function AdminSpecialtiesPage() {
               </svg>
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Excluir Especialidade?</h3>
-            <p className="text-sm text-gray-600 text-center mb-6">
+            <p className="text-sm text-gray-800 text-center mb-6">
               Esta ação não poderá ser desfeita. Se houver médicos vinculados, a exclusão será bloqueada.
             </p>
             <div className="flex gap-3">
