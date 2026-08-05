@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { apiFetch } from "../../../../lib/api";
+import { formatCurrency, parseCurrencyToDecimal } from "../../../../lib/format";
 
 interface Exam {
   id: number;
@@ -23,15 +25,10 @@ export default function AdminExamsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadExams() {
     try {
-      const res = await fetch(`${base}/api/exames`, { headers });
+      const res = await apiFetch("/api/exames");
       if (res.ok) {
         const data = await res.json();
         setExams(data.data ?? data);
@@ -61,16 +58,6 @@ export default function AdminExamsPage() {
     setModalOpen(true);
   }
 
-  function formatCurrency(value: string) {
-    const num = parseFloat(value);
-    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  }
-
-  function parseCurrencyToDecimal(value: string): string {
-    let cleaned = value.replace(/[R$\s.]/g, "").replace(",", ".");
-    return cleaned;
-  }
-
   async function handleSave() {
     if (!formNome.trim() || !formValor.trim()) return;
     setSaving(true);
@@ -82,15 +69,13 @@ export default function AdminExamsPage() {
       let res;
 
       if (editingExam) {
-        res = await fetch(`${base}/api/exames/${editingExam.id}`, {
+        res = await apiFetch(`/api/exames/${editingExam.id}`, {
           method: "PUT",
-          headers,
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch(`${base}/api/exames`, {
+        res = await apiFetch("/api/exames", {
           method: "POST",
-          headers,
           body: JSON.stringify(body),
         });
       }
@@ -112,9 +97,8 @@ export default function AdminExamsPage() {
   async function handleDelete(id: number) {
     setDeleteError(null);
     try {
-      const res = await fetch(`${base}/api/exames/${id}`, {
+      const res = await apiFetch(`/api/exames/${id}`, {
         method: "DELETE",
-        headers,
       });
 
       if (res.ok) {
@@ -222,7 +206,6 @@ export default function AdminExamsPage() {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
@@ -272,7 +255,6 @@ export default function AdminExamsPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">

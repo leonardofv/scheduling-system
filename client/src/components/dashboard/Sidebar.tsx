@@ -72,7 +72,6 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
 
   return (
     <>
-      {/* Overlay for mobile */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-30 bg-black/40"
@@ -80,7 +79,6 @@ export default function Sidebar({ collapsed, mobileOpen, onCloseMobile }: Sideba
         />
       )}
 
-      {/* Sidebar — fixed e por cima do Header (z-index maior), do topo real da tela até o fim */}
       <aside
         className={`fixed top-0 left-0 z-50 h-screen shrink-0 bg-white border-r border-gray-200 overflow-y-auto transition-all duration-200 ${
           collapsed ? "lg:w-20" : "lg:w-64"

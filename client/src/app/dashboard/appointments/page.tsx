@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import AppointmentModal from "../../../components/dashboard/AppointmentModal";
+import { apiFetch } from "../../../lib/api";
 
 interface Appointment {
   id: number;
@@ -53,19 +54,10 @@ export default function AppointmentsPage() {
   async function handleConfirm() {
     setIsLoading(true);
     try {
-      const token = localStorage.getItem("token");
-
       if (modalState.mode === "delete" && modalState.appointment) {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/agendamentos/${modalState.appointment.id}`,
-          {
-            method: "DELETE",
-            headers: {
-              "Authorization": `Bearer ${token}`,
-              "Content-Type": "application/json"
-            }
-          }
-        );
+        const res = await apiFetch(`/api/agendamentos/${modalState.appointment.id}`, {
+          method: "DELETE",
+        });
 
         if (res.ok) {
           setAppointments(appointments.filter(a => a.id !== modalState.appointment?.id));

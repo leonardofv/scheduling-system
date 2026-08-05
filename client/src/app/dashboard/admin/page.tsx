@@ -2,24 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-
-interface Appointment {
-  id: number;
-  tipo: string;
-  date: string;
-  time: string;
-  status: string;
-  user?: { name: string; email: string };
-  medico?: { nome: string; especialidade?: { nome: string } } | null;
-  exame?: { nome: string } | null;
-}
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  role: string;
-}
+import { apiFetch } from "../../../lib/api";
+import { formatDateBR } from "../../../lib/format";
+import { getStatusColor, getStatusLabel } from "../../../lib/appointments";
+import type { Appointment } from "../../../types/appointment";
+import type { User } from "../../../types/user";
 
 export default function AdminDashboardPage() {
   const router = useRouter();
@@ -37,19 +24,12 @@ export default function AdminDashboardPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const token = localStorage.getItem("token");
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-      const base = process.env.NEXT_PUBLIC_API_URL;
-
       try {
         const [apptRes, usersRes, doctorsRes, specialtiesRes] = await Promise.all([
-          fetch(`${base}/api/agendamentos?page=1&per_page=100`, { headers }),
-          fetch(`${base}/api/users`, { headers }),
-          fetch(`${base}/api/medicos`, { headers }),
-          fetch(`${base}/api/especialidades`, { headers }),
+          apiFetch("/api/agendamentos?page=1&per_page=100"),
+          apiFetch("/api/users"),
+          apiFetch("/api/medicos"),
+          apiFetch("/api/especialidades"),
         ]);
 
         let appointments: Appointment[] = [];
@@ -99,32 +79,6 @@ export default function AdminDashboardPage() {
 
     fetchData();
   }, []);
-
-  function getStatusColor(status: string) {
-    switch (status) {
-      case "confirmado": return "bg-emerald-100 text-emerald-700";
-      case "pendente": return "bg-yellow-100 text-yellow-700";
-      case "cancelado": return "bg-red-100 text-red-700";
-      case "falta": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  }
-
-  function getStatusLabel(status: string) {
-    switch (status) {
-      case "confirmado": return "Confirmado";
-      case "pendente": return "Pendente";
-      case "cancelado": return "Cancelado";
-      case "falta": return "Falta";
-      default: return status;
-    }
-  }
-
-  function formatDate(dateStr: string) {
-    if (!dateStr) return "";
-    const [y, m, d] = dateStr.split("-");
-    return `${d}/${m}/${y}`;
-  }
 
   if (loading) {
     return (
@@ -219,7 +173,6 @@ export default function AdminDashboardPage() {
         <p className="text-gray-800 mt-1">Visão geral do sistema de agendamentos</p>
       </div>
 
-      {/* Stats grid */}
       <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {statCards.map((card) => (
           <button
@@ -236,7 +189,6 @@ export default function AdminDashboardPage() {
         ))}
       </div>
 
-      {/* Recent appointments */}
       <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm">
         <div className="flex items-center justify-between mb-4">
           <div>
@@ -274,7 +226,7 @@ export default function AdminDashboardPage() {
                       {appt.user?.name ?? "—"}
                     </td>
                     <td className="py-3 px-2 text-gray-800 capitalize">{appt.tipo}</td>
-                    <td className="py-3 px-2 text-gray-800">{formatDate(appt.date)}</td>
+                    <td className="py-3 px-2 text-gray-800">{formatDateBR(appt.date)}</td>
                     <td className="py-3 px-2 text-gray-800">{appt.time?.slice(0, 5)}</td>
                     <td className="py-3 px-2">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(appt.status)}`}>
@@ -289,7 +241,6 @@ export default function AdminDashboardPage() {
         )}
       </div>
 
-      {/* Quick actions */}
       <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-6">
         <h2 className="text-lg font-bold text-gray-900 mb-4">Ações Rápidas</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">

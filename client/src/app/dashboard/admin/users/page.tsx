@@ -1,15 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-interface User {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  role: string;
-  created_at: string;
-}
+import { apiFetch } from "../../../../lib/api";
+import { formatDateShort, formatRole } from "../../../../lib/format";
+import type { User } from "../../../../types/user";
 
 export default function AdminUsersPage() {
   const [users, setUsers] = useState<User[]>([]);
@@ -20,16 +14,11 @@ export default function AdminUsersPage() {
   const [lastPage, setLastPage] = useState(1);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadUsers() {
     setLoading(true);
     try {
-      const res = await fetch(`${base}/api/users?page=${page}`, { headers });
+      const res = await apiFetch(`/api/users?page=${page}`);
       if (res.ok) {
         const data = await res.json();
         setUsers(data.data ?? data);
@@ -47,18 +36,6 @@ export default function AdminUsersPage() {
   useEffect(() => {
     if (token) loadUsers();
   }, [token, page]);
-
-  function formatRole(role: string) {
-    return role === "admin" ? "Administrador" : "Paciente";
-  }
-
-  function formatDate(dateStr: string) {
-    return new Intl.DateTimeFormat("pt-BR", {
-      day: "2-digit",
-      month: "2-digit",
-      year: "numeric",
-    }).format(new Date(dateStr));
-  }
 
   const q = search.toLowerCase();
   const filtered = users.filter(
@@ -143,7 +120,7 @@ export default function AdminUsersPage() {
                         {formatRole(user.role)}
                       </span>
                     </td>
-                    <td className="py-3 px-4 text-gray-700 text-xs">{formatDate(user.created_at)}</td>
+                    <td className="py-3 px-4 text-gray-700 text-xs">{formatDateShort(user.created_at)}</td>
                   </tr>
                 ))
               )}
@@ -152,7 +129,6 @@ export default function AdminUsersPage() {
         </div>
       </div>
 
-      {/* Pagination */}
       {!search && lastPage > 1 && (
         <div className="flex items-center justify-center gap-2">
           <button

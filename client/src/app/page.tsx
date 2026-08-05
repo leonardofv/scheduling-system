@@ -75,7 +75,6 @@ export default function Home() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Header */}
       <header className="bg-emerald-800 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4">
           <div className="flex items-center justify-between">
@@ -105,7 +104,6 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
       <section className="bg-linear-to-br from-emerald-800 via-emerald-700 to-emerald-900 text-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 sm:py-28">
           <div className="max-w-3xl">
@@ -139,7 +137,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Sobre a Empresa */}
       <section className="bg-white py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="max-w-3xl mx-auto text-center">
@@ -157,7 +154,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Vantagens */}
       <section className="bg-gray-50 py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
@@ -187,7 +183,6 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Depoimentos */}
       <section className="bg-emerald-800 py-20 sm:py-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-14">
@@ -226,10 +221,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Footer */}
       <Footer />
 
-      {/* Auth Modal */}
       {authOpen && (
         <div
           className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"

@@ -1,27 +1,9 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
-interface Profile {
-  id: number;
-  name: string;
-  email: string;
-  phone: string | null;
-  role: string;
-  created_at: string;
-}
-
-function formatRole(role: string) {
-  return role === "admin" ? "Administrador" : "Paciente";
-}
-
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("pt-BR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  }).format(new Date(value));
-}
+import { apiFetch } from "../../../lib/api";
+import { formatDateLong, formatRole } from "../../../lib/format";
+import type { User as Profile } from "../../../types/user";
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
@@ -31,13 +13,7 @@ export default function ProfilePage() {
   useEffect(() => {
     async function loadProfile() {
       try {
-        const token = localStorage.getItem("token");
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const response = await apiFetch("/api/user");
 
         if (!response.ok) {
           throw new Error("Não foi possível carregar seus dados.");
@@ -95,7 +71,7 @@ export default function ProfilePage() {
             </div>
             <div>
               <dt className="text-emerald-200">Membro desde</dt>
-              <dd className="mt-1 font-semibold">{formatDate(profile.created_at)}</dd>
+              <dd className="mt-1 font-semibold">{formatDateLong(profile.created_at)}</dd>
             </div>
           </dl>
         </aside>

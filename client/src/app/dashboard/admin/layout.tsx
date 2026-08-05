@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import AdminSidebar from "../../../components/dashboard/AdminSidebar";
+import { apiFetch, getToken } from "../../../lib/api";
 
 export default function AdminLayout({
   children,
@@ -15,19 +16,14 @@ export default function AdminLayout({
 
   useEffect(() => {
     async function checkAdmin() {
-      const token = localStorage.getItem("token");
+      const token = getToken();
       if (!token) {
         router.push("/");
         return;
       }
 
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await apiFetch("/api/user");
 
         if (res.ok) {
           const user = await res.json();

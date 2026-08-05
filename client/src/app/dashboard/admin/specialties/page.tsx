@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { apiFetch } from "../../../../lib/api";
 
 interface Specialty {
   id: number;
@@ -14,7 +15,6 @@ export default function AdminSpecialtiesPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingSpecialty, setEditingSpecialty] = useState<Specialty | null>(null);
   const [formNome, setFormNome] = useState("");
@@ -24,15 +24,10 @@ export default function AdminSpecialtiesPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadSpecialties() {
     try {
-      const res = await fetch(`${base}/api/especialidades`, { headers });
+      const res = await apiFetch("/api/especialidades");
       if (res.ok) {
         const data = await res.json();
         setSpecialties(data.data ?? data);
@@ -72,15 +67,13 @@ export default function AdminSpecialtiesPage() {
       let res;
 
       if (editingSpecialty) {
-        res = await fetch(`${base}/api/especialidades/${editingSpecialty.id}`, {
+        res = await apiFetch(`/api/especialidades/${editingSpecialty.id}`, {
           method: "PUT",
-          headers,
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch(`${base}/api/especialidades`, {
+        res = await apiFetch("/api/especialidades", {
           method: "POST",
-          headers,
           body: JSON.stringify(body),
         });
       }
@@ -102,9 +95,8 @@ export default function AdminSpecialtiesPage() {
   async function handleDelete(id: number) {
     setDeleteError(null);
     try {
-      const res = await fetch(`${base}/api/especialidades/${id}`, {
+      const res = await apiFetch(`/api/especialidades/${id}`, {
         method: "DELETE",
-        headers,
       });
 
       if (res.ok) {
@@ -134,7 +126,6 @@ export default function AdminSpecialtiesPage() {
 
   return (
     <div className="space-y-6">
-      {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Especialidades</h1>
@@ -151,14 +142,12 @@ export default function AdminSpecialtiesPage() {
         </button>
       </div>
 
-      {/* Error */}
       {error && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {error}
         </div>
       )}
 
-      {/* Search */}
       <div className="relative">
         <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
@@ -172,7 +161,6 @@ export default function AdminSpecialtiesPage() {
         />
       </div>
 
-      {/* Delete error */}
       {deleteError && (
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
           {deleteError}
@@ -180,7 +168,6 @@ export default function AdminSpecialtiesPage() {
         </div>
       )}
 
-      {/* List */}
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
           <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -222,7 +209,6 @@ export default function AdminSpecialtiesPage() {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
@@ -273,7 +259,6 @@ export default function AdminSpecialtiesPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">

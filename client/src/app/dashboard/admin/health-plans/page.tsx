@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { apiFetch } from "../../../../lib/api";
 
 interface HealthPlan {
   id: number;
@@ -23,16 +24,10 @@ export default function AdminHealthPlansPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadPlans() {
     try {
-      // Admin endpoint to see ALL plans (including inactive)
-      const res = await fetch(`${base}/api/planos-saude/all`, { headers });
+      const res = await apiFetch("/api/planos-saude/all");
       if (res.ok) {
         const data = await res.json();
         setPlans(data.data ?? data);
@@ -72,15 +67,13 @@ export default function AdminHealthPlansPage() {
       let res;
 
       if (editingPlan) {
-        res = await fetch(`${base}/api/planos-saude/${editingPlan.id}`, {
+        res = await apiFetch(`/api/planos-saude/${editingPlan.id}`, {
           method: "PUT",
-          headers,
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch(`${base}/api/planos-saude`, {
+        res = await apiFetch("/api/planos-saude", {
           method: "POST",
-          headers,
           body: JSON.stringify(body),
         });
       }
@@ -102,9 +95,8 @@ export default function AdminHealthPlansPage() {
   async function handleDelete(id: number) {
     setDeleteError(null);
     try {
-      const res = await fetch(`${base}/api/planos-saude/${id}`, {
+      const res = await apiFetch(`/api/planos-saude/${id}`, {
         method: "DELETE",
-        headers,
       });
 
       if (res.ok) {
@@ -220,7 +212,6 @@ export default function AdminHealthPlansPage() {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
@@ -273,7 +264,6 @@ export default function AdminHealthPlansPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">

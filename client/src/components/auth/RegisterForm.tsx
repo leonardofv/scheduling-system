@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { apiFetch } from "../../lib/api";
 
 interface Props {
   onSwitchToLogin: () => void;
@@ -44,15 +45,15 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
     }
     setError("");
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
+    const res = await apiFetch("/api/register", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      token: null,
       body: JSON.stringify({
         name: form.name,
         email: form.email,
         phone: form.phone,
         password: form.password,
-        password_confirmation: form.confirmPassword
+        password_confirmation: form.confirmPassword,
       }),
     });
 

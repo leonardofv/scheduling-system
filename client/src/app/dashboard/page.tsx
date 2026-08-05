@@ -2,63 +2,14 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
-
-interface Appointment {
-  id: number;
-  tipo: string;
-  date: string;
-  time: string;
-  status: string;
-  medico?: { nome: string; especialidade?: { nome: string } } | null;
-  exame?: { nome: string } | null;
-  forma_pagamento: string;
-}
+import { apiFetch } from "../../lib/api";
+import { formatDateBR } from "../../lib/format";
+import { getStatusColor, getStatusLabel } from "../../lib/appointments";
+import type { Appointment } from "../../types/appointment";
 
 interface User {
   name: string;
   email: string;
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "confirmado":
-      return "bg-emerald-100 text-emerald-700";
-    case "pendente":
-      return "bg-yellow-100 text-yellow-700";
-    case "cancelado":
-      return "bg-red-100 text-red-700";
-    case "falta":
-      return "bg-gray-100 text-gray-600";
-    default:
-      return "bg-gray-100 text-gray-600";
-  }
-}
-
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "confirmado": return "Confirmado";
-    case "pendente": return "Pendente";
-    case "cancelado": return "Cancelado";
-    case "falta": return "Falta";
-    default: return status;
-  }
-}
-
-function formatDate(dateStr: string) {
-  const [y, m, d] = dateStr.split("-");
-  return `${d}/${m}/${y}`;
-}
-
-function FeedbackSection() {
-  const [text, setText] = useState("");
-  const [submitted, setSubmitted] = useState(false);
-
-  function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
-    if (!text.trim()) return;
-    setSubmitted(true);
-    setText("");
-  }
 }
 
 export default function DashboardPage() {
@@ -69,19 +20,10 @@ export default function DashboardPage() {
 
   useEffect(() => {
     async function fetchData() {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-      const base = process.env.NEXT_PUBLIC_API_URL;
-
       try {
         const [userRes, apptRes] = await Promise.all([
-          fetch(`${base}/api/user`, { headers }),
-          fetch(`${base}/api/agendamentos`, { headers }),
+          apiFetch("/api/user"),
+          apiFetch("/api/agendamentos"),
         ]);
 
         if (userRes.ok) setUser(await userRes.json());
@@ -117,7 +59,6 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      {/* Hero */}
       <div className="bg-linear-to-br bg-emerald-700 rounded-2xl p-8">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-bold text-white border-red-700 mb-2">
@@ -135,7 +76,6 @@ export default function DashboardPage() {
         </div>
       </div>
 
-      {/* Stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 rounded-xl">
         <StatCard
           label="Total"
@@ -163,10 +103,8 @@ export default function DashboardPage() {
         />
       </div>
 
-      {/* Conteúdo */}
       <section className="grid gap-6 xl:items-start">
         <div className="space-y-6">
-          {/* Próximos Agendamentos */}
           <section className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8">
             <div className="flex items-center justify-between mb-6">
               <div>
@@ -206,8 +144,8 @@ export default function DashboardPage() {
                     className="flex items-center gap-4 rounded-xl border border-gray-100 bg-gray-50 p-4 transition-colors hover:bg-gray-100"
                   >
                     <div className="flex h-12 w-12 shrink-0 flex-col items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-                      <span className="text-xs font-bold leading-none">{formatDate(appt.date).slice(0, 2)}</span>
-                      <span className="text-[10px] font-medium leading-none mt-0.5">{formatDate(appt.date).slice(3, 5)}</span>
+                      <span className="text-xs font-bold leading-none">{formatDateBR(appt.date).slice(0, 2)}</span>
+                      <span className="text-[10px] font-medium leading-none mt-0.5">{formatDateBR(appt.date).slice(3, 5)}</span>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
@@ -231,7 +169,6 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      {/* Ajuda */}
       <section className="flex flex-col items-center gap-4 rounded-2xl border border-emerald-300 bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-blue-600">

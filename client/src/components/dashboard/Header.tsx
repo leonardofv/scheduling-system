@@ -2,11 +2,8 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
-
-interface User {
-  name: string;
-  email: string;
-}
+import { apiFetch } from "../../lib/api";
+import type { User } from "../../types/user";
 
 interface HeaderProps {
   onOpenMenu: () => void;
@@ -25,13 +22,7 @@ export default function Header({ onOpenMenu, collapsed, onToggleCollapse }: Head
   useEffect(() => {
     async function fetchUser() {
       try {
-        const token = localStorage.getItem("token");
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/user`, {
-          headers: {
-            "Authorization": `Bearer ${token}`,
-            "Content-Type": "application/json"
-          }
-        });
+        const res = await apiFetch("/api/user");
 
         if (res.ok) {
           const data = await res.json();
@@ -69,17 +60,9 @@ export default function Header({ onOpenMenu, collapsed, onToggleCollapse }: Head
   }
 
   async function handleLogout() {
-    const token = localStorage.getItem("token");
-
     try {
-      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/logout`, {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error){
+      await apiFetch("/api/logout", { method: "POST" });
+    } catch (error) {
       console.error("Erro ao fazer logout:", error);
     } finally {
       localStorage.removeItem("token");
@@ -166,20 +149,16 @@ export default function Header({ onOpenMenu, collapsed, onToggleCollapse }: Head
                     <div className="px-2 py-2">
                       <p className="text-xs text-gray-500 px-2 py-2">{user.email}</p>
                     </div>
-                    
+
                     <button
-                    onClick={handleLogout}
-                    className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100"
+                      onClick={handleLogout}
+                      className="w-full text-left px-4 py-3 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 border-t border-gray-100"
                     >
                       <svg className="w-4 h-4 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h6a2 2 0 012 2v1" />
                       </svg>
                       Sair
                     </button>
-
-
-
-
                   </div>
                 )}
               </div>

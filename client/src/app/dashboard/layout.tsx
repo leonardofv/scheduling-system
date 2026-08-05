@@ -3,8 +3,8 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Header from "../../components/dashboard/Header";
-import Footer from "../../components/dashboard/Footer";
 import Sidebar from "../../components/dashboard/Sidebar";
+import { getToken } from "../../lib/api";
 
 export default function DashboardLayout({
   children,
@@ -17,7 +17,7 @@ export default function DashboardLayout({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = getToken();
     if (!token) {
       router.push("/");
     } else {
@@ -36,9 +36,6 @@ export default function DashboardLayout({
         collapsed={sidebarCollapsed}
         onToggleCollapse={() => setSidebarCollapsed((v) => !v)}
       />
-      {/* A sidebar é fixed e fica por cima do Header (não ocupa espaço no
-          fluxo), então o conteúdo recebe uma margem à esquerda equivalente
-          à largura atual da sidebar (recolhida ou expandida). */}
       <Sidebar
         collapsed={sidebarCollapsed}
         mobileOpen={mobileMenuOpen}
@@ -53,7 +50,6 @@ export default function DashboardLayout({
           {children}
         </div>
       </main>
-      <Footer />
     </div>
   );
 }

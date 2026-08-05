@@ -1,20 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-
-interface Appointment {
-  id: number;
-  tipo: string;
-  date: string;
-  time: string;
-  status: string;
-  forma_pagamento: string;
-  observation: string | null;
-  user?: { name: string; email: string } | null;
-  medico?: { nome: string; crm: string; especialidade?: { nome: string } } | null;
-  exame?: { nome: string; valor: string } | null;
-  healthPlan?: { nome: string } | null;
-}
+import { apiFetch } from "../../../../lib/api";
+import { formatDateBR } from "../../../../lib/format";
+import { getStatusColor, getStatusLabel, getTipoLabel } from "../../../../lib/appointments";
+import type { Appointment } from "../../../../types/appointment";
 
 type ActionType = "confirm" | "no-show" | "cancel" | "delete" | null;
 
@@ -27,7 +17,6 @@ export default function AdminAppointmentsPage() {
   const [lastPage, setLastPage] = useState(1);
   const [statusFilter, setStatusFilter] = useState<string>("");
 
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [selectedAppointment, setSelectedAppointment] = useState<Appointment | null>(null);
   const [actionType, setActionType] = useState<ActionType>(null);
@@ -35,17 +24,11 @@ export default function AdminAppointmentsPage() {
   const [actionError, setActionError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadAppointments() {
     setLoading(true);
     try {
-      let url = `${base}/api/agendamentos?page=${page}`;
-      const res = await fetch(url, { headers });
+      const res = await apiFetch(`/api/agendamentos?page=${page}`);
       if (res.ok) {
         const data = await res.json();
         setAppointments(data.data ?? data);
@@ -88,27 +71,23 @@ export default function AdminAppointmentsPage() {
 
       switch (actionType) {
         case "confirm":
-          res = await fetch(`${base}/api/agendamentos/${selectedAppointment.id}/confirm`, {
+          res = await apiFetch(`/api/agendamentos/${selectedAppointment.id}/confirm`, {
             method: "PATCH",
-            headers,
           });
           break;
         case "no-show":
-          res = await fetch(`${base}/api/agendamentos/${selectedAppointment.id}/no-show`, {
+          res = await apiFetch(`/api/agendamentos/${selectedAppointment.id}/no-show`, {
             method: "PATCH",
-            headers,
           });
           break;
         case "cancel":
-          res = await fetch(`${base}/api/agendamentos/${selectedAppointment.id}/cancel`, {
+          res = await apiFetch(`/api/agendamentos/${selectedAppointment.id}/cancel`, {
             method: "PATCH",
-            headers,
           });
           break;
         case "delete":
-          res = await fetch(`${base}/api/agendamentos/${selectedAppointment.id}`, {
+          res = await apiFetch(`/api/agendamentos/${selectedAppointment.id}`, {
             method: "DELETE",
-            headers,
           });
           break;
         default:
@@ -127,41 +106,6 @@ export default function AdminAppointmentsPage() {
     } finally {
       setProcessing(false);
     }
-  }
-
-  function getStatusColor(status: string) {
-    switch (status) {
-      case "confirmado": return "bg-emerald-100 text-emerald-700";
-      case "pendente": return "bg-yellow-100 text-yellow-700";
-      case "cancelado": return "bg-red-100 text-red-700";
-      case "falta": return "bg-gray-100 text-gray-800";
-      default: return "bg-gray-100 text-gray-800";
-    }
-  }
-
-  function getStatusLabel(status: string) {
-    switch (status) {
-      case "confirmado": return "Confirmado";
-      case "pendente": return "Pendente";
-      case "cancelado": return "Cancelado";
-      case "falta": return "Falta";
-      default: return status;
-    }
-  }
-
-  function getTipoLabel(tipo: string) {
-    switch (tipo) {
-      case "consulta": return "Consulta";
-      case "retorno": return "Retorno";
-      case "exame": return "Exame";
-      default: return tipo;
-    }
-  }
-
-  function formatDate(dateStr: string) {
-    if (!dateStr) return "";
-    const [y, m, d] = dateStr.split("-");
-    return `${d}/${m}/${y}`;
   }
 
   const q = search.toLowerCase();
@@ -194,7 +138,6 @@ export default function AdminAppointmentsPage() {
         <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
       )}
 
-      {/* Filters */}
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
           <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -221,7 +164,6 @@ export default function AdminAppointmentsPage() {
         </select>
       </div>
 
-      {/* Table */}
       <div className="rounded-xl border border-gray-200 bg-white shadow-sm overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -255,7 +197,7 @@ export default function AdminAppointmentsPage() {
                     <td className="py-3 px-3 text-gray-800">
                       {appt.medico?.nome ?? appt.exame?.nome ?? "—"}
                     </td>
-                    <td className="py-3 px-3 text-gray-800">{formatDate(appt.date)}</td>
+                    <td className="py-3 px-3 text-gray-800">{formatDateBR(appt.date)}</td>
                     <td className="py-3 px-3 text-gray-800">{appt.time?.slice(0, 5)}</td>
                     <td className="py-3 px-3">
                       <span className={`inline-block rounded-full px-2.5 py-0.5 text-xs font-medium ${getStatusColor(appt.status)}`}>
@@ -304,7 +246,6 @@ export default function AdminAppointmentsPage() {
         </div>
       </div>
 
-      {/* Pagination */}
       {!search && lastPage > 1 && (
         <div className="flex items-center justify-center gap-2">
           <button
@@ -327,7 +268,6 @@ export default function AdminAppointmentsPage() {
         </div>
       )}
 
-      {/* Action Modal */}
       {modalOpen && selectedAppointment && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">
@@ -355,7 +295,7 @@ export default function AdminAppointmentsPage() {
 
             <p className="text-sm text-gray-800 text-center mb-4">
               {selectedAppointment.user?.name && <><strong>{selectedAppointment.user.name}</strong><br /></>}
-              {getTipoLabel(selectedAppointment.tipo)} — {formatDate(selectedAppointment.date)} às {selectedAppointment.time?.slice(0, 5)}
+              {getTipoLabel(selectedAppointment.tipo)} — {formatDateBR(selectedAppointment.date)} às {selectedAppointment.time?.slice(0, 5)}
             </p>
 
             {actionError && (

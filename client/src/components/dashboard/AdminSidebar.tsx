@@ -86,7 +86,6 @@ export default function AdminSidebar() {
 
   return (
     <>
-      {/* Mobile toggle */}
       <button
         onClick={() => setMobileOpen(!mobileOpen)}
         className="lg:hidden fixed bottom-4 right-4 z-50 flex h-12 w-12 items-center justify-center rounded-full bg-emerald-700 text-white shadow-lg"
@@ -100,7 +99,6 @@ export default function AdminSidebar() {
         </svg>
       </button>
 
-      {/* Overlay for mobile */}
       {mobileOpen && (
         <div
           className="lg:hidden fixed inset-0 z-30 bg-black/40"
@@ -108,7 +106,6 @@ export default function AdminSidebar() {
         />
       )}
 
-      {/* Sidebar — abaixo do Header (z-index menor) para não sobrepor o topo fixo */}
       <aside
         className={`fixed lg:sticky top-0 lg:top-24 z-30 h-screen lg:h-[calc(100vh-8rem)] w-64 shrink-0 bg-white border-r border-gray-200 overflow-y-auto transition-transform duration-200 ${
           mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0"

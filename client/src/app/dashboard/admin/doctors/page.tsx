@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { apiFetch } from "../../../../lib/api";
 
 interface Specialty {
   id: number;
@@ -24,7 +25,6 @@ export default function AdminDoctorsPage() {
   const [error, setError] = useState<string | null>(null);
   const [search, setSearch] = useState("");
 
-  // Modal state
   const [modalOpen, setModalOpen] = useState(false);
   const [editingDoctor, setEditingDoctor] = useState<Doctor | null>(null);
   const [formNome, setFormNome] = useState("");
@@ -37,17 +37,12 @@ export default function AdminDoctorsPage() {
   const [deleteError, setDeleteError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
-  const base = process.env.NEXT_PUBLIC_API_URL;
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json",
-  };
 
   async function loadData() {
     try {
       const [docRes, espRes] = await Promise.all([
-        fetch(`${base}/api/medicos`, { headers }),
-        fetch(`${base}/api/especialidades`, { headers }),
+        apiFetch("/api/medicos"),
+        apiFetch("/api/especialidades"),
       ]);
 
       if (docRes.ok) {
@@ -106,15 +101,13 @@ export default function AdminDoctorsPage() {
       let res;
 
       if (editingDoctor) {
-        res = await fetch(`${base}/api/medicos/${editingDoctor.id}`, {
+        res = await apiFetch(`/api/medicos/${editingDoctor.id}`, {
           method: "PUT",
-          headers,
           body: JSON.stringify(body),
         });
       } else {
-        res = await fetch(`${base}/api/medicos`, {
+        res = await apiFetch("/api/medicos", {
           method: "POST",
-          headers,
           body: JSON.stringify(body),
         });
       }
@@ -136,9 +129,8 @@ export default function AdminDoctorsPage() {
   async function handleDelete(id: number) {
     setDeleteError(null);
     try {
-      const res = await fetch(`${base}/api/medicos/${id}`, {
+      const res = await apiFetch(`/api/medicos/${id}`, {
         method: "DELETE",
-        headers,
       });
 
       if (res.ok) {
@@ -270,7 +262,6 @@ export default function AdminDoctorsPage() {
         </div>
       )}
 
-      {/* Create/Edit Modal */}
       {modalOpen && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-md w-full p-6">
@@ -358,7 +349,6 @@ export default function AdminDoctorsPage() {
         </div>
       )}
 
-      {/* Delete Confirm */}
       {deleteConfirm && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">

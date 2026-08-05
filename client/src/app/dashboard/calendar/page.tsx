@@ -4,60 +4,10 @@ import "react-day-picker/style.css";
 import { DayPicker } from "react-day-picker";
 import { ptBR } from "react-day-picker/locale";
 import { useEffect, useMemo, useState } from "react";
-
-interface Appointment {
-  id: number;
-  tipo: string;
-  date: string;
-  time: string;
-  status: string;
-  medico?: { nome: string; especialidade?: { nome: string } } | null;
-  exame?: { nome: string } | null;
-  forma_pagamento: string;
-}
-
-function parseLocalDate(dateStr: string) {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return new Date(y, m - 1, d);
-}
-
-function isSameDay(a: Date, b: Date) {
-  return (
-    a.getFullYear() === b.getFullYear() &&
-    a.getMonth() === b.getMonth() &&
-    a.getDate() === b.getDate()
-  );
-}
-
-function getStatusColor(status: string) {
-  switch (status) {
-    case "confirmado":
-      return "bg-emerald-100 text-emerald-700";
-    case "pendente":
-      return "bg-yellow-100 text-yellow-700";
-    case "cancelado":
-      return "bg-red-100 text-red-700";
-    case "falta":
-      return "bg-gray-100 text-gray-600";
-    default:
-      return "bg-gray-100 text-gray-600";
-  }
-}
-
-function getStatusLabel(status: string) {
-  switch (status) {
-    case "confirmado":
-      return "Confirmado";
-    case "pendente":
-      return "Pendente";
-    case "cancelado":
-      return "Cancelado";
-    case "falta":
-      return "Falta";
-    default:
-      return status;
-  }
-}
+import { apiFetch } from "../../../lib/api";
+import { parseLocalDate, isSameDay } from "../../../lib/format";
+import { getStatusColor, getStatusLabel } from "../../../lib/appointments";
+import type { Appointment } from "../../../types/appointment";
 
 export default function CalendarPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -66,16 +16,8 @@ export default function CalendarPage() {
 
   useEffect(() => {
     async function fetchAppointments() {
-      const token = localStorage.getItem("token");
-      if (!token) return;
-
       try {
-        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/agendamentos`, {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await apiFetch("/api/agendamentos");
         if (res.ok) {
           const data = await res.json();
           setAppointments(data.data ?? data);
@@ -112,8 +54,8 @@ export default function CalendarPage() {
         </p>
       </div>
 
-      <section className="grid gap-6 xl:grid-cols-12 xl:items-start">
-        <div className="rounded-2xl border border-emerald-300 bg-white p-4 shadow-sm sm:p-6 xl:col-span-7">
+      <section className="grid gap-8 xl:grid-cols-3 xl:items-start">
+        <div className="flex justify-center rounded-2xl border border-emerald-300 bg-white p-4 shadow-sm sm:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
@@ -128,19 +70,19 @@ export default function CalendarPage() {
               modifiers={{ hasAppointment: appointmentDates }}
               className="mx-auto"
               classNames={{
-                months: "flex flex-col sm:flex-row gap-4",
+                months: "relative flex flex-col sm:flex-row gap-4",
                 month: "space-y-4",
                 month_caption:
                   "flex justify-center items-center h-9 relative px-10 font-semibold text-gray-900 capitalize",
-                nav: "flex items-center justify-between absolute inset-x-0  top-0 h-9",
+                nav: "z-10 flex items-center justify-between absolute inset-x-0 top-0 h-9",
                 button_previous:
                   "h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-emerald-50 hover:text-emerald-700",
                 button_next:
                   "h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-emerald-50 hover:text-emerald-700",
-                month_grid: "w-full border-collapse mt-2",
-                weekdays: "flex",
+                month_grid: "border-collapse mt-2",
+                weekdays: "flex justify-center",
                 weekday: "text-gray-400 text-xs font-medium w-10 h-9 flex items-center justify-center capitalize",
-                week: "flex w-full mt-1",
+                week: "flex w-full justify-center mt-1",
                 day: "w-10 h-10 text-center text-sm p-0 relative",
                 day_button:
                   "w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 transition-colors",
@@ -157,7 +99,7 @@ export default function CalendarPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8 xl:col-span-5">
+        <div className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-6">
             <p className="text-sm font-semibold text-emerald-700">
               {selectedDate

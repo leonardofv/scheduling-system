@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "../../lib/api";
 
 interface Props {
   onSwitchToRegister: () => void;
@@ -18,10 +19,10 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
+
+    const res = await apiFetch("/api/login", {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      token: null,
       body: JSON.stringify(form),
     });
 

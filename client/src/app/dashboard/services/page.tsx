@@ -1,6 +1,8 @@
 "use client";
 
 import { useState, useEffect, useMemo } from "react";
+import { apiFetch } from "../../../lib/api";
+import { formatCurrency } from "../../../lib/format";
 
 interface Specialty {
   id: number;
@@ -45,19 +47,13 @@ export default function ServicesPage() {
     async function fetchAll() {
       setLoading(true);
       setError(null);
-      const token = localStorage.getItem("token");
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        "Content-Type": "application/json",
-      };
-      const base = process.env.NEXT_PUBLIC_API_URL;
 
       try {
         const [resEsp, resMed, resExa, resPlan] = await Promise.all([
-          fetch(`${base}/api/especialidades`, { headers }),
-          fetch(`${base}/api/medicos`, { headers }),
-          fetch(`${base}/api/exames`, { headers }),
-          fetch(`${base}/api/planos-saude`, { headers }),
+          apiFetch("/api/especialidades"),
+          apiFetch("/api/medicos"),
+          apiFetch("/api/exames"),
+          apiFetch("/api/planos-saude"),
         ]);
 
         if (resEsp.ok) setEspecialidades((await resEsp.json()).data ?? (await resEsp.json()));
@@ -146,11 +142,6 @@ export default function ServicesPage() {
       ),
     },
   ];
-
-  function formatValor(valor: string) {
-    const num = parseFloat(valor);
-    return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
-  }
 
   return (
     <div className="space-y-6">
@@ -295,7 +286,7 @@ export default function ServicesPage() {
                     </div>
                     <h3 className="text-lg font-semibold text-gray-900">{ex.nome}</h3>
                     <p className="mt-2 text-sm font-semibold text-emerald-700">
-                      {formatValor(ex.valor)}
+                      {formatCurrency(ex.valor)}
                     </p>
                   </div>
                 ))
