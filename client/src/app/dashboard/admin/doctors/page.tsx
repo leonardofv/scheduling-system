@@ -15,7 +15,7 @@ interface Doctor {
   email: string | null;
   telefone: string | null;
   especialidade_id: number;
-  especialidade?: Specialty | null;
+  specialty?: Specialty | null;
 }
 
 export default function AdminDoctorsPage() {
@@ -150,7 +150,7 @@ export default function AdminDoctorsPage() {
     (d) =>
       d.nome.toLowerCase().includes(q) ||
       d.crm.toLowerCase().includes(q) ||
-      d.especialidade?.nome.toLowerCase().includes(q)
+      d.specialty?.nome.toLowerCase().includes(q)
   );
 
   if (loading) {
@@ -229,9 +229,9 @@ export default function AdminDoctorsPage() {
                         CRM {doctor.crm}
                       </span>
                     </div>
-                    {doctor.especialidade && (
+                    {doctor.specialty && (
                       <p className="text-sm text-emerald-700 font-medium mt-0.5">
-                        {doctor.especialidade.nome}
+                        {doctor.specialty.nome}
                       </p>
                     )}
                     {(doctor.email || doctor.telefone) && (

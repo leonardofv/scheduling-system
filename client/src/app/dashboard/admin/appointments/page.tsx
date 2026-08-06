@@ -3,8 +3,9 @@
 import { useState, useEffect } from "react";
 import { apiFetch } from "../../../../lib/api";
 import { formatDateBR } from "../../../../lib/format";
-import { getStatusColor, getStatusLabel, getTipoLabel } from "../../../../lib/appointments";
+import { getPaymentLabel, getStatusColor, getStatusLabel, getTipoLabel } from "../../../../lib/appointments";
 import type { Appointment } from "../../../../types/appointment";
+import AppointmentModal, { type AppointmentEditPayload } from "../../../../components/dashboard/AppointmentModal";
 
 type ActionType = "confirm" | "no-show" | "cancel" | "delete" | null;
 
@@ -22,6 +23,10 @@ export default function AdminAppointmentsPage() {
   const [actionType, setActionType] = useState<ActionType>(null);
   const [processing, setProcessing] = useState(false);
   const [actionError, setActionError] = useState<string | null>(null);
+
+  const [editAppointment, setEditAppointment] = useState<Appointment | null>(null);
+  const [editLoading, setEditLoading] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
 
   const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
 
@@ -108,13 +113,52 @@ export default function AdminAppointmentsPage() {
     }
   }
 
+  function openEditModal(appointment: Appointment) {
+    setEditAppointment(appointment);
+    setEditError(null);
+  }
+
+  function closeEditModal() {
+    setEditAppointment(null);
+    setEditError(null);
+  }
+
+  async function handleEditConfirm(data?: AppointmentEditPayload) {
+    if (!editAppointment) return;
+    setEditLoading(true);
+    setEditError(null);
+
+    const payload: Record<string, unknown> = { observation: data?.observation ?? "" };
+    if (data?.date) payload.date = data.date;
+    if (data?.time) payload.time = data.time;
+
+    try {
+      const res = await apiFetch(`/api/agendamentos/${editAppointment.id}`, {
+        method: "PUT",
+        body: JSON.stringify(payload),
+      });
+
+      if (res.ok) {
+        closeEditModal();
+        loadAppointments();
+      } else {
+        const err = await res.json().catch(() => null);
+        setEditError(err?.message || "Erro ao atualizar agendamento.");
+      }
+    } catch {
+      setEditError("Erro de conexão.");
+    } finally {
+      setEditLoading(false);
+    }
+  }
+
   const q = search.toLowerCase();
   const filtered = appointments.filter((a) => {
     const matchesSearch =
       a.user?.name?.toLowerCase().includes(q) ||
       a.user?.email?.toLowerCase().includes(q) ||
-      a.medico?.nome?.toLowerCase().includes(q) ||
-      a.exame?.nome?.toLowerCase().includes(q);
+      a.doctor?.nome?.toLowerCase().includes(q) ||
+      a.exam?.nome?.toLowerCase().includes(q);
     const matchesStatus = !statusFilter || a.status === statusFilter;
     return matchesSearch && matchesStatus;
   });
@@ -175,13 +219,14 @@ export default function AdminAppointmentsPage() {
                 <th className="text-left py-3 px-3 font-semibold text-gray-800">Data</th>
                 <th className="text-left py-3 px-3 font-semibold text-gray-800">Horário</th>
                 <th className="text-left py-3 px-3 font-semibold text-gray-800">Status</th>
+                <th className="text-left py-3 px-3 font-semibold text-gray-800">Pagamento</th>
                 <th className="text-left py-3 px-3 font-semibold text-gray-800">Ações</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="py-12 text-center text-gray-700">
+                  <td colSpan={8} className="py-12 text-center text-gray-700">
                     {search || statusFilter ? "Nenhum agendamento encontrado para essa busca." : "Nenhum agendamento cadastrado."}
                   </td>
                 </tr>
@@ -193,9 +238,22 @@ export default function AdminAppointmentsPage() {
                     </td>
                     <td className="py-3 px-3">
                       <span className="capitalize">{getTipoLabel(appt.tipo)}</span>
+                      {appt.tipo === "retorno" && appt.origin && (
+                        <p className="text-xs text-gray-500 mt-0.5">de {formatDateBR(appt.origin.date)}</p>
+                      )}
                     </td>
                     <td className="py-3 px-3 text-gray-800">
-                      {appt.medico?.nome ?? appt.exame?.nome ?? "—"}
+                      <div className="flex items-center gap-1.5">
+                        <span>{appt.doctor?.nome ?? appt.exam?.nome ?? "—"}</span>
+                        {appt.observation && (
+                          <span
+                            title={appt.observation}
+                            className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-gray-100 text-[10px] font-semibold text-gray-500 cursor-help"
+                          >
+                            i
+                          </span>
+                        )}
+                      </div>
                     </td>
                     <td className="py-3 px-3 text-gray-800">{formatDateBR(appt.date)}</td>
                     <td className="py-3 px-3 text-gray-800">{appt.time?.slice(0, 5)}</td>
@@ -204,8 +262,22 @@ export default function AdminAppointmentsPage() {
                         {getStatusLabel(appt.status)}
                       </span>
                     </td>
+                    <td className="py-3 px-3 text-gray-800">
+                      {getPaymentLabel(appt.forma_pagamento)}
+                      {appt.forma_pagamento === "plano" && appt.healthPlan?.nome && (
+                        <p className="text-xs text-gray-500 mt-0.5">{appt.healthPlan.nome}</p>
+                      )}
+                    </td>
                     <td className="py-3 px-3">
                       <div className="flex gap-1.5 flex-wrap">
+                        {appt.status !== "cancelado" && appt.status !== "falta" && (
+                          <button
+                            onClick={() => openEditModal(appt)}
+                            className="px-2.5 py-1 text-xs font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition-colors"
+                          >
+                            Editar
+                          </button>
+                        )}
                         {appt.status === "pendente" && (
                           <button
                             onClick={() => openActionModal(appt, "confirm")}
@@ -331,6 +403,19 @@ export default function AdminAppointmentsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {editAppointment && (
+        <AppointmentModal
+          key={`edit-${editAppointment.id}`}
+          isOpen={!!editAppointment}
+          mode="edit"
+          appointment={editAppointment}
+          onConfirm={handleEditConfirm}
+          onClose={closeEditModal}
+          isLoading={editLoading}
+          error={editError}
+        />
       )}
     </div>
   );

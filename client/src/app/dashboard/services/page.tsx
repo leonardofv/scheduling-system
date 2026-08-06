@@ -16,7 +16,7 @@ interface Doctor {
   crm: string;
   email: string | null;
   telefone: string | null;
-  especialidade: Specialty | null;
+  specialty: Specialty | null;
 }
 
 interface Exam {
@@ -56,10 +56,22 @@ export default function ServicesPage() {
           apiFetch("/api/planos-saude"),
         ]);
 
-        if (resEsp.ok) setEspecialidades((await resEsp.json()).data ?? (await resEsp.json()));
-        if (resMed.ok) setMedicos((await resMed.json()).data ?? (await resMed.json()));
-        if (resExa.ok) setExames((await resExa.json()).data ?? (await resExa.json()));
-        if (resPlan.ok) setPlanos((await resPlan.json()).data ?? (await resPlan.json()));
+        if (resEsp.ok) {
+          const data = await resEsp.json();
+          setEspecialidades(data.data ?? data);
+        }
+        if (resMed.ok) {
+          const data = await resMed.json();
+          setMedicos(data.data ?? data);
+        }
+        if (resExa.ok) {
+          const data = await resExa.json();
+          setExames(data.data ?? data);
+        }
+        if (resPlan.ok) {
+          const data = await resPlan.json();
+          setPlanos(data.data ?? data);
+        }
       } catch {
         setError("Erro ao carregar serviços. Tente novamente.");
       } finally {
@@ -83,7 +95,7 @@ export default function ServicesPage() {
       (m) =>
         m.nome.toLowerCase().includes(q) ||
         m.crm.toLowerCase().includes(q) ||
-        m.especialidade?.nome.toLowerCase().includes(q)
+        m.specialty?.nome.toLowerCase().includes(q)
     );
   }, [medicos, q]);
 
@@ -225,7 +237,7 @@ export default function ServicesPage() {
                       <p className="mt-2 text-sm text-gray-600 leading-relaxed">{esp.descricao}</p>
                     )}
                     <p className="mt-3 text-xs text-gray-400">
-                      {medicos.filter((m) => m.especialidade?.id === esp.id).length} médico(s) nesta especialidade
+                      {medicos.filter((m) => m.specialty?.id === esp.id).length} médico(s) nesta especialidade
                     </p>
                   </div>
                 ))
@@ -253,9 +265,9 @@ export default function ServicesPage() {
                           CRM {med.crm}
                         </span>
                       </div>
-                      {med.especialidade && (
+                      {med.specialty && (
                         <p className="mt-1 text-sm text-emerald-700 font-medium">
-                          {med.especialidade.nome}
+                          {med.specialty.nome}
                         </p>
                       )}
                       <div className="mt-2 flex flex-wrap gap-4 text-sm text-gray-500">

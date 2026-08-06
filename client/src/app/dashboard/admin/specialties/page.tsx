@@ -63,7 +63,7 @@ export default function AdminSpecialtiesPage() {
     setError(null);
 
     try {
-      const body = { nome: formNome.trim(), descricao: formDescricao.trim() || undefined };
+      const body = { nome: formNome.trim(), descricao: formDescricao.trim() || null };
       let res;
 
       if (editingSpecialty) {

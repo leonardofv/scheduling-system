@@ -4,5 +4,6 @@ export interface User {
   email: string;
   phone: string | null;
   role: string;
+  photo_url: string | null;
   created_at: string;
 }

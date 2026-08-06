@@ -40,3 +40,14 @@ export function getTipoLabel(tipo: string) {
       return tipo;
   }
 }
+
+export function getPaymentLabel(formaPagamento?: string) {
+  switch (formaPagamento) {
+    case "particular":
+      return "Particular";
+    case "plano":
+      return "Plano de saúde";
+    default:
+      return "—";
+  }
+}

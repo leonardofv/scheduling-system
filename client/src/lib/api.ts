@@ -11,12 +11,13 @@ interface ApiFetchOptions extends RequestInit {
 
 export function apiFetch(path: string, { token, headers, ...init }: ApiFetchOptions = {}) {
   const authToken = token !== undefined ? token : getToken();
+  const isFormData = typeof FormData !== "undefined" && init.body instanceof FormData;
 
   return fetch(`${API_URL}${path}`, {
     ...init,
     headers: {
       ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
-      "Content-Type": "application/json",
+      ...(isFormData ? {} : { "Content-Type": "application/json" }),
       ...headers,
     },
   });

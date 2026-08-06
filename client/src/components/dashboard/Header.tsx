@@ -105,10 +105,15 @@ export default function Header({ onOpenMenu, collapsed, onToggleCollapse }: Head
                   onClick={() => setDropdownOpen(!dropdownOpen)}
                   className="flex items-center gap-2 px-4 py-2.5 rounded-lg transition-colors"
                 >
-                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0">
-                    <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
-                      <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
-                    </svg>
+                  <div className="w-8 h-8 rounded-full bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                    {user.photo_url ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={user.photo_url} alt="" className="h-full w-full object-cover" />
+                    ) : (
+                      <svg className="w-4 h-4 text-emerald-600" fill="currentColor" viewBox="0 0 24 24">
+                        <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z" />
+                      </svg>
+                    )}
                   </div>
                   <span className="text-sm font-medium text-white">
                     Olá, {user.name}

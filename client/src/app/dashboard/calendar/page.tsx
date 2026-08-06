@@ -6,7 +6,7 @@ import { ptBR } from "react-day-picker/locale";
 import { useEffect, useMemo, useState } from "react";
 import { apiFetch } from "../../../lib/api";
 import { parseLocalDate, isSameDay } from "../../../lib/format";
-import { getStatusColor, getStatusLabel } from "../../../lib/appointments";
+import { getPaymentLabel, getStatusColor, getStatusLabel } from "../../../lib/appointments";
 import type { Appointment } from "../../../types/appointment";
 
 export default function CalendarPage() {
@@ -141,14 +141,23 @@ export default function CalendarPage() {
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 flex-wrap">
                       <h4 className="text-sm font-semibold text-gray-900">
-                        {appt.tipo === "exame" ? appt.exame?.nome ?? "Exame" : appt.medico?.nome ?? "Consulta"}
+                        {appt.tipo === "exame" ? appt.exam?.nome ?? "Exame" : appt.doctor?.nome ?? "Consulta"}
                       </h4>
                       <span className={`px-2 py-0.5 rounded-full text-[11px] font-medium ${getStatusColor(appt.status)}`}>
                         {getStatusLabel(appt.status)}
                       </span>
                     </div>
-                    {appt.medico?.especialidade?.nome && (
-                      <p className="text-xs text-gray-500 mt-0.5">{appt.medico.especialidade.nome}</p>
+                    {appt.doctor?.specialty?.nome && (
+                      <p className="text-xs text-gray-500 mt-0.5">{appt.doctor.specialty.nome}</p>
+                    )}
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {getPaymentLabel(appt.forma_pagamento)}
+                      {appt.forma_pagamento === "plano" && appt.healthPlan?.nome && ` (${appt.healthPlan.nome})`}
+                    </p>
+                    {appt.observation && (
+                      <p className="text-xs text-gray-400 mt-0.5 italic truncate" title={appt.observation}>
+                        {appt.observation}
+                      </p>
                     )}
                   </div>
                 </div>

@@ -54,7 +54,7 @@ export default function AdminExamsPage() {
   function openEditModal(exam: Exam) {
     setEditingExam(exam);
     setFormNome(exam.nome);
-    setFormValor(exam.valor);
+    setFormValor(String(exam.valor));
     setModalOpen(true);
   }
 

@@ -1,14 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { apiFetch } from "../../../lib/api";
 import { formatDateLong, formatRole } from "../../../lib/format";
 import type { User as Profile } from "../../../types/user";
+
+const MAX_PHOTO_SIZE = 2 * 1024 * 1024;
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+  const [photoError, setPhotoError] = useState("");
 
   useEffect(() => {
     async function loadProfile() {
@@ -29,6 +35,45 @@ export default function ProfilePage() {
 
     loadProfile();
   }, []);
+
+  async function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+
+    setPhotoError("");
+
+    if (!file.type.startsWith("image/")) {
+      setPhotoError("Selecione um arquivo de imagem.");
+      return;
+    }
+    if (file.size > MAX_PHOTO_SIZE) {
+      setPhotoError("A imagem deve ter no máximo 2MB.");
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append("photo", file);
+
+    setUploading(true);
+    try {
+      const res = await apiFetch("/api/user/photo", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (res.ok) {
+        setProfile(await res.json());
+      } else {
+        const err = await res.json().catch(() => null);
+        setPhotoError(err?.message || "Não foi possível atualizar a foto.");
+      }
+    } catch {
+      setPhotoError("Erro de conexão. Tente novamente.");
+    } finally {
+      setUploading(false);
+    }
+  }
 
   if (isLoading) {
     return (
@@ -58,9 +103,40 @@ export default function ProfilePage() {
 
       <div className="grid gap-6 lg:grid-cols-5">
         <aside className="rounded-2xl bg-linear-to-br from-emerald-700 to-emerald-900 p-6 text-white lg:col-span-2">
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl bg-white/15 text-2xl font-bold ring-1 ring-white/20">
-            {profile.name.charAt(0).toUpperCase()}
+          <div className="relative h-16 w-16">
+            <div className="flex h-16 w-16 items-center justify-center overflow-hidden rounded-2xl bg-white/15 text-2xl font-bold ring-1 ring-white/20">
+              {profile.photo_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
+              ) : (
+                profile.name.charAt(0).toUpperCase()
+              )}
+            </div>
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              aria-label="Alterar foto de perfil"
+              className="absolute -bottom-1.5 -right-1.5 flex h-7 w-7 items-center justify-center rounded-full bg-white text-emerald-700 shadow ring-2 ring-emerald-800 hover:bg-emerald-50 transition-colors disabled:opacity-50"
+            >
+              {uploading ? (
+                <div className="h-3 w-3 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
+              ) : (
+                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 17a4 4 0 100-8 4 4 0 000 8z" />
+                </svg>
+              )}
+            </button>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*"
+              onChange={handlePhotoChange}
+              className="hidden"
+            />
           </div>
+          {photoError && <p className="mt-2 text-xs text-red-200">{photoError}</p>}
           <h2 className="mt-5 text-xl font-bold">{profile.name}</h2>
           <p className="mt-1 text-sm text-emerald-100">{profile.email}</p>
 

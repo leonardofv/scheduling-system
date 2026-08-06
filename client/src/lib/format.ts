@@ -34,10 +34,10 @@ export function formatRole(role: string) {
 }
 
 export function formatCurrency(value: string) {
-  const num = parseFloat(value);
+  const num = parseFloat(String(value));
   return num.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 }
 
 export function parseCurrencyToDecimal(value: string) {
-  return value.replace(/[R$\s.]/g, "").replace(",", ".");
+  return String(value).replace(/[R$\s.]/g, "").replace(",", ".");
 }
