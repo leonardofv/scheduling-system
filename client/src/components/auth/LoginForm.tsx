@@ -11,6 +11,8 @@ interface Props {
 export default function LoginForm({ onSwitchToRegister }: Props) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -19,22 +21,43 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (loading) return;
 
-    const res = await apiFetch("/api/login", {
-      method: "POST",
-      token: null,
-      body: JSON.stringify(form),
-    });
+    setLoading(true);
+    setError("");
+    setNotice("");
 
-    const data = await res.json();
+    try {
+      const res = await apiFetch("/api/login", {
+        method: "POST",
+        token: null,
+        body: JSON.stringify(form),
+      });
 
-    if (!res.ok) {
-      setError(data.message ?? "Credenciais Inválidas");
-      return;
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(
+          data?.message ??
+            (res.status === 429
+              ? "Muitas tentativas. Aguarde alguns instantes."
+              : "Credenciais inválidas.")
+        );
+        return;
+      }
+
+      if (!data?.token) {
+        setError("Resposta inválida do servidor. Tente novamente.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      router.push("/dashboard");
+    } catch {
+      setError("Não foi possível conectar ao servidor. Verifique sua conexão.");
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem("token", data.token);
-    router.push("/dashboard");
   }
 
   return (
@@ -66,18 +89,24 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
       </div>
 
       <div className="text-right">
-        <button type="button" className="text-xs text-emerald-600 hover:underline">
+        <button
+          type="button"
+          className="text-xs text-emerald-600 hover:underline"
+        >
           Esqueceu a senha?
         </button>
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {notice && <p className="text-xs text-gray-500">{notice}</p>}
+
+      {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+        disabled={loading}
+        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700 active:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Entrar
+        {loading ? "Entrando..." : "Entrar"}
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-2">

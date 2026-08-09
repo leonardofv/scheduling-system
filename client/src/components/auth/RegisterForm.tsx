@@ -10,6 +10,8 @@ interface Props {
 export default function RegisterForm({ onSwitchToLogin }: Props) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
 
 
   function formatPhone(value: string){
@@ -38,34 +40,70 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (loading) return;
 
     if (form.password !== form.confirmPassword) {
       setError("As senhas não coincidem.");
       return;
     }
+
+    setLoading(true);
     setError("");
 
-    const res = await apiFetch("/api/register", {
-      method: "POST",
-      token: null,
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        password: form.password,
-        password_confirmation: form.confirmPassword,
-      }),
-    });
+    try {
+      const res = await apiFetch("/api/register", {
+        method: "POST",
+        token: null,
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+          password_confirmation: form.confirmPassword,
+        }),
+      });
 
-    const data = await res.json();
+      // resposta pode não ser JSON (500 do Laravel, 429 do throttle, HTML de erro)
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
-      setError(data.message ?? "Erro ao cadastrar");
-      return;
+      if (!res.ok) {
+        setError(
+          data?.message ??
+            (res.status === 429
+              ? "Muitas tentativas. Aguarde alguns instantes."
+              : "Não foi possível concluir o cadastro.")
+        );
+        return;
+      }
+
+      setSuccess(true);
+    } catch {
+      setError("Não foi possível conectar ao servidor. Verifique sua conexão.");
+    } finally {
+      setLoading(false);
     }
-    
-    alert("Cadastro realizado com sucesso");
-    onSwitchToLogin();
+  }
+
+  if (success) {
+    return (
+      <div className="flex flex-col items-center gap-4 p-8 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p className="text-sm text-gray-600">
+          Cadastro realizado com sucesso! Faça login para continuar.
+        </p>
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-700"
+        >
+          Ir para o login
+        </button>
+      </div>
+    );
   }
 
   return (
@@ -134,13 +172,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
         />
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+        disabled={loading}
+        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Criar conta
+        {loading ? "Criando conta..." : "Criar conta"}
       </button>
 
       <p className="text-center text-xs text-gray-400 mt-2">
