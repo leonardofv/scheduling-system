@@ -143,18 +143,3 @@ Com a API rodando, o Swagger UI fica em `http://localhost:8000/api/documentation
 ```bash
 php artisan l5-swagger:generate
 ```
-
-## Endpoints principais
-
-| Método | Rota | Acesso |
-|---|---|---|
-| `POST` | `/api/register`, `/api/login` | Público (com throttle) |
-| `GET` | `/api/user` | Autenticado |
-| `POST` | `/api/user/photo`, `/api/logout` | Autenticado |
-| `GET/POST/PUT` | `/api/agendamentos` | Autenticado |
-| `PATCH` | `/api/agendamentos/{id}/cancel` | Autenticado |
-| `GET` | `/api/especialidades`, `/api/medicos`, `/api/exames`, `/api/planos-saude` | Autenticado |
-| `PATCH` | `/api/agendamentos/{id}/confirm`, `/api/agendamentos/{id}/no-show` | Admin |
-| `DELETE` | `/api/agendamentos/{id}` | Admin |
-| `POST/PUT/DELETE` | `/api/especialidades`, `/api/medicos`, `/api/exames`, `/api/planos-saude` | Admin |
-| `GET` | `/api/users` | Admin |
