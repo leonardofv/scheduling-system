@@ -1,7 +1,7 @@
 "use client";
-
-import { useState } from "react";
+import { useId, useState } from "react";
 import { useRouter } from "next/navigation";
+import { apiFetch } from "../../lib/api";
 
 interface Props {
   onSwitchToRegister: () => void;
@@ -10,7 +10,10 @@ interface Props {
 export default function LoginForm({ onSwitchToRegister }: Props) {
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const fieldId = useId();
 
   function handleChange(e: React.ChangeEvent<HTMLInputElement>) {
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -18,29 +21,56 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
-    
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/login`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),
-    });
+    if (loading) return;
 
-    const data = await res.json();
+    setLoading(true);
+    setError("");
+    setNotice("");
 
-    if (!res.ok) {
-      setError(data.message ?? "Credenciais Inválidas");
-      return;
+    try {
+      const res = await apiFetch("/api/login", {
+        method: "POST",
+        token: null,
+        body: JSON.stringify(form),
+      });
+
+      const data = await res.json().catch(() => null);
+
+      if (!res.ok) {
+        setError(
+          data?.message ??
+            (res.status === 429
+              ? "Muitas tentativas. Aguarde alguns instantes."
+              : "Credenciais inválidas.")
+        );
+        return;
+      }
+
+      if (!data?.token) {
+        setError("Resposta inválida do servidor. Tente novamente.");
+        return;
+      }
+
+      localStorage.setItem("token", data.token);
+      router.push("/dashboard");
+    } catch {
+      setError("Não foi possível conectar ao servidor. Verifique sua conexão.");
+    } finally {
+      setLoading(false);
     }
-
-    localStorage.setItem("token", data.token);
-    router.push("/dashboard");
   }
 
   return (
     <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">E-mail</label>
+        <label
+          htmlFor={`${fieldId}-email`}
+          className="text-sm font-medium text-gray-700"
+        >
+          E-mail
+        </label>
         <input
+          id={`${fieldId}-email`}
           type="email"
           name="email"
           value={form.email}
@@ -52,8 +82,14 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Senha</label>
+        <label
+          htmlFor={`${fieldId}-password`}
+          className="text-sm font-medium text-gray-700"
+        >
+          Senha
+        </label>
         <input
+          id={`${fieldId}-password`}
           type="password"
           name="password"
           value={form.password}
@@ -65,23 +101,33 @@ export default function LoginForm({ onSwitchToRegister }: Props) {
       </div>
 
       <div className="text-right">
-        <button type="button" className="text-xs text-emerald-600 hover:underline">
+        <button
+          type="button"
+          className="text-xs text-emerald-700 hover:underline"
+        >
           Esqueceu a senha?
         </button>
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {notice && <p className="text-xs text-gray-500">{notice}</p>}
+
+      {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+        disabled={loading}
+        className="mt-2 w-full rounded-lg bg-emerald-700 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-800 active:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Entrar
+        {loading ? "Entrando..." : "Entrar"}
       </button>
 
-      <p className="text-center text-xs text-gray-400 mt-2">
+      <p className="text-center text-xs text-gray-500 mt-2">
         Não tem conta?{" "}
-        <button type="button" onClick={onSwitchToRegister} className="text-emerald-600 font-medium hover:underline">
+        <button
+          type="button"
+          onClick={onSwitchToRegister}
+          className="text-emerald-700 font-medium hover:underline"
+        >
           Cadastre-se
         </button>
       </p>

@@ -384,9 +384,6 @@
                     },
                     "409": {
                         "description": "Apenas agendamentos pendentes podem ser confirmados"
-                    },
-                    "422": {
-                        "description": "Data/horário do agendamento já passou"
                     }
                 },
                 "security": [
@@ -435,7 +432,7 @@
                         "description": "Agendamento não encontrado"
                     },
                     "409": {
-                        "description": "Apenas agendamentos confirmados podem ser marcados como falta"
+                        "description": "Apenas agendamentos pendentes ou confirmados podem ser marcados como falta"
                     },
                     "422": {
                         "description": "Não é possível marcar falta antes do horário do agendamento"

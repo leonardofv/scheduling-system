@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useId, useState } from "react";
+import { apiFetch } from "../../lib/api";
 
 interface Props {
   onSwitchToLogin: () => void;
@@ -9,6 +10,9 @@ interface Props {
 export default function RegisterForm({ onSwitchToLogin }: Props) {
   const [form, setForm] = useState({ name: "", email: "", phone: "", password: "", confirmPassword: "" });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [success, setSuccess] = useState(false);
+  const fieldId = useId();
 
 
   function formatPhone(value: string){
@@ -37,41 +41,81 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+    if (loading) return;
 
     if (form.password !== form.confirmPassword) {
       setError("As senhas não coincidem.");
       return;
     }
+
+    setLoading(true);
     setError("");
 
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/register`, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        password: form.password,
-        password_confirmation: form.confirmPassword
-      }),
-    });
+    try {
+      const res = await apiFetch("/api/register", {
+        method: "POST",
+        token: null,
+        body: JSON.stringify({
+          name: form.name,
+          email: form.email,
+          phone: form.phone,
+          password: form.password,
+          password_confirmation: form.confirmPassword,
+        }),
+      });
 
-    const data = await res.json();
+      const data = await res.json().catch(() => null);
 
-    if (!res.ok) {
-      setError(data.message ?? "Erro ao cadastrar");
-      return;
+      if (!res.ok) {
+        setError(
+          data?.message ??
+            (res.status === 429
+              ? "Muitas tentativas. Aguarde alguns instantes."
+              : "Não foi possível concluir o cadastro.")
+        );
+        return;
+      }
+      setSuccess(true);
+    } catch {
+      setError("Não foi possível conectar ao servidor. Verifique sua conexão.");
+    } finally {
+      setLoading(false);
     }
-    
-    alert("Cadastro realizado com sucesso");
-    onSwitchToLogin();
+  }
+
+  if (success) {
+    return (
+      <div className="flex flex-col items-center gap-4 p-8 text-center">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
+          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <p className="text-sm text-gray-600">
+          Cadastro realizado com sucesso! Faça login para continuar.
+        </p>
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="w-full rounded-lg bg-emerald-700 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-emerald-800"
+        >
+          Ir para o login
+        </button>
+      </div>
+    );
   }
 
   return (
     <form onSubmit={handleSubmit} className="p-8 flex flex-col gap-4">
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Nome completo</label>
+        <label
+          htmlFor={`${fieldId}-name`}
+          className="text-sm font-medium text-gray-700"
+        >
+          Nome completo
+        </label>
         <input
+          id={`${fieldId}-name`}
           type="text"
           name="name"
           value={form.name}
@@ -83,8 +127,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">E-mail</label>
+        <label
+          htmlFor={`${fieldId}-email`}
+          className="text-sm font-medium text-gray-700"
+        >
+          E-mail
+        </label>
         <input
+          id={`${fieldId}-email`}
           type="email"
           name="email"
           value={form.email}
@@ -96,8 +146,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Telefone</label>
+        <label
+          htmlFor={`${fieldId}-phone`}
+          className="text-sm font-medium text-gray-700"
+        >
+          Telefone
+        </label>
         <input
+          id={`${fieldId}-phone`}
           type="tel"
           name="phone"
           value={form.phone}
@@ -108,8 +164,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Senha</label>
+        <label
+          htmlFor={`${fieldId}-password`}
+          className="text-sm font-medium text-gray-700"
+        >
+          Senha
+        </label>
         <input
+          id={`${fieldId}-password`}
           type="password"
           name="password"
           value={form.password}
@@ -121,8 +183,14 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
       </div>
 
       <div className="flex flex-col gap-1">
-        <label className="text-sm font-medium text-gray-700">Confirmar senha</label>
+        <label
+          htmlFor={`${fieldId}-confirm-password`}
+          className="text-sm font-medium text-gray-700"
+        >
+          Confirmar senha
+        </label>
         <input
+          id={`${fieldId}-confirm-password`}
           type="password"
           name="confirmPassword"
           value={form.confirmPassword}
@@ -133,18 +201,23 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
         />
       </div>
 
-      {error && <p className="text-xs text-red-500">{error}</p>}
+      {error && <p role="alert" className="text-xs text-red-500">{error}</p>}
 
       <button
         type="submit"
-        className="mt-2 w-full rounded-lg bg-emerald-600 py-2.5 text-sm font-semibold text-white hover:bg-emerald-700 active:bg-emerald-800 transition-colors"
+        disabled={loading}
+        className="mt-2 w-full rounded-lg bg-emerald-700 py-2.5 text-sm font-semibold text-white hover:bg-emerald-800 active:bg-emerald-900 transition-colors disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Criar conta
+        {loading ? "Criando conta..." : "Criar conta"}
       </button>
 
-      <p className="text-center text-xs text-gray-400 mt-2">
+      <p className="text-center text-xs text-gray-500 mt-2">
         Já tem conta?{" "}
-        <button type="button" onClick={onSwitchToLogin} className="text-emerald-600 font-medium hover:underline">
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="text-emerald-700 font-medium hover:underline"
+        >
           Entrar
         </button>
       </p>
