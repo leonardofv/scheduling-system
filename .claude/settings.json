@@ -1,8 +1,0 @@
-{
-  "permissions": {
-    "allow": [
-      "Bash(env)",
-      "Bash(curl -s -o /dev/null -w \"%{http_code}\\\\n\" \"http://localhost:8001/storage/avatars/Ogvk6luhdgFAPnhBaa0wUWDROCvXI13Q6zgiCqfU.jpg\")"
-    ]
-  }
-}
