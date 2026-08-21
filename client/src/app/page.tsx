@@ -2,6 +2,7 @@
 import { useState } from "react";
 import Footer from "../components/dashboard/Footer";
 import AuthDialog, { type AuthMode } from "../components/auth/AuthDialog";
+import SpecialityGrid from "../components/home/SpecialityGrid";
 
 const vantagens = [
   {
@@ -83,27 +84,6 @@ const vantagens = [
         />
       </svg>
     ),
-  },
-];
-
-const depoimentos = [
-  {
-    nome: "Maria Oliveira",
-    texto:
-      "O AgendaFácil transformou minha rotina de cuidados. Consigo agendar tudo sem sair de casa e nunca mais perdi uma consulta.",
-    nota: 5,
-  },
-  {
-    nome: "Carlos Mendes",
-    texto:
-      "Simples, rápido e intuitivo. Recomendo para todos que buscam praticidade na hora de marcar exames e consultas.",
-    nota: 5,
-  },
-  {
-    nome: "Ana Beatriz",
-    texto:
-      "Finalmente um sistema que organiza tudo direitinho. O histórico de atendimentos me ajuda muito a acompanhar minha saúde.",
-    nota: 5,
   },
 ];
 
@@ -260,57 +240,7 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="bg-emerald-800 py-20 sm:py-24">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6">
-            <div className="text-center mb-14">
-              <p className="text-sm font-semibold text-white">DEPOIMENTOS</p>
-              <h2 className="mt-2 text-3xl sm:text-4xl font-bold text-white">
-                O que nossos usuários dizem
-              </h2>
-            </div>
-
-            <div className="grid gap-8 md:grid-cols-3">
-              {depoimentos.map((d) => (
-                <div
-                  key={d.nome}
-                  className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm"
-                >
-                  <div
-                    role="img"
-                    aria-label={`Nota ${d.nota} de 5`}
-                    className="flex gap-1 text-emerald-600 mb-4"
-                  >
-                    {Array.from({ length: d.nota }).map((_, i) => (
-                      <svg
-                        key={i}
-                        className="h-5 w-5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                        aria-hidden="true"
-                      >
-                        <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
-                      </svg>
-                    ))}
-                  </div>
-                  <p className="text-sm leading-6 text-gray-600 italic">
-                    &ldquo;{d.texto}&rdquo;
-                  </p>
-                  <div className="mt-5 flex items-center gap-3 border-t border-gray-100 pt-4">
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-emerald-100 text-sm font-bold text-emerald-700">
-                      {d.nome.charAt(0)}
-                    </div>
-                    <div>
-                      <p className="text-sm font-semibold text-gray-900">
-                        {d.nome}
-                      </p>
-                      <p className="text-xs text-gray-500">Paciente</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
+        <SpecialityGrid />
       </main>
 
       <Footer />
