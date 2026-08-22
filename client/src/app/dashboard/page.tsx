@@ -2,8 +2,9 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Clipboard, Clock, CircleCheck, CalendarDays, CircleHelp } from "lucide-react";
 import { apiFetch } from "../../lib/api";
-import { formatDateBR } from "../../lib/format";
+import { formatDateBR, toLocalISODate } from "../../lib/format";
 import { getStatusColor, getStatusLabel } from "../../lib/appointments";
 import type { Appointment } from "../../types/appointment";
 
@@ -17,22 +18,26 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
+      setError(null);
       try {
         const [userRes, apptRes] = await Promise.all([
           apiFetch("/api/user"),
-          apiFetch("/api/agendamentos"),
+          apiFetch("/api/agendamentos?all=1"),
         ]);
 
         if (userRes.ok) setUser(await userRes.json());
         if (apptRes.ok) {
           const data = await apptRes.json();
           setAppointments(data.data ?? data);
+        } else {
+          setError("Erro ao carregar agendamentos.");
         }
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+      } catch {
+        setError("Erro ao carregar os dados da sua conta.");
       } finally {
         setLoading(false);
       }
@@ -43,7 +48,7 @@ export default function DashboardPage() {
 
   const pending = appointments.filter((a) => a.status === "pendente");
   const confirmed = appointments.filter((a) => a.status === "confirmado");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalISODate(new Date());
   const upcoming = appointments
     .filter((a) => a.date >= today && a.status !== "cancelado")
     .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
@@ -59,9 +64,13 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <div className="bg-linear-to-br bg-emerald-700 rounded-2xl p-8">
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+      )}
+
+      <div className="bg-linear-to-br from-emerald-800 via-emerald-700 to-emerald-900 rounded-2xl p-8">
         <div className="max-w-2xl">
-          <h2 className="text-3xl font-bold text-white border-red-700 mb-2">
+          <h2 className="text-3xl font-bold text-white mb-2">
             {getGreeting()}, {loading ? "..." : firstName}!
           </h2>
           <p className="text-white mb-6">
@@ -69,7 +78,7 @@ export default function DashboardPage() {
           </p>
           <button
             onClick={() => router.push("/dashboard/appointments/new")}
-            className="px-6 py-3 bg-emerald-600 text-white font-semibold rounded-lg hover:bg-emerald-900 transition-colors"
+            className="px-6 py-3 bg-white text-emerald-700 font-semibold rounded-lg hover:bg-emerald-50 transition-colors"
           >
             Novo Agendamento
           </button>
@@ -80,26 +89,30 @@ export default function DashboardPage() {
         <StatCard
           label="Total"
           value={appointments.length}
+          loading={loading}
           color="bg-blue-200 text-blue-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
+          icon={<Clipboard className="w-5 h-5" />}
         />
         <StatCard
           label="Pendentes"
           value={pending.length}
+          loading={loading}
           color="bg-yellow-200 text-yellow-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+          icon={<Clock className="w-5 h-5" />}
         />
         <StatCard
           label="Confirmados"
           value={confirmed.length}
+          loading={loading}
           color="bg-emerald-200 text-emerald-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+          icon={<CircleCheck className="w-5 h-5" />}
         />
         <StatCard
           label="Próximos"
           value={upcoming.length}
+          loading={loading}
           color="bg-violet-200 text-violet-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+          icon={<CalendarDays className="w-5 h-5" />}
         />
       </div>
 
@@ -125,9 +138,7 @@ export default function DashboardPage() {
               </div>
             ) : upcoming.length === 0 ? (
               <div className="text-center py-8">
-                <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <CalendarDays className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1.5} />
                 <p className="text-sm text-gray-500 mb-4">Nenhum agendamento futuro.</p>
                 <button
                   onClick={() => router.push("/dashboard/appointments/new")}
@@ -169,19 +180,17 @@ export default function DashboardPage() {
         </div>
       </section>
 
-      <section className="flex flex-col items-center gap-4 rounded-2xl border border-emerald-300 bg-blue-50 p-6 sm:flex-row sm:items-center sm:justify-between">
+      <section className="flex flex-col items-center gap-4 rounded-2xl border border-emerald-300 bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg text-blue-600">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
+            <CircleHelp className="h-5 w-5" />
           </div>
           <div>
             <h2 className="font-semibold text-gray-900">Precisa de ajuda?</h2>
             <p className="mt-1 text-sm text-gray-600">Nossa equipe está pronta para orientar você sobre seus atendimentos.</p>
           </div>
         </div>
-        <a href="mailto:suporte@agendafacil.com" className="shrink-0 text-sm font-semibold text-blue-700 hover:text-blue-800 hover:underline">
+        <a href="#" className="shrink-0 text-sm font-semibold text-emerald-700 hover:text-emerald-800 hover:underline">
           Falar com o suporte
         </a>
       </section>
@@ -189,14 +198,30 @@ export default function DashboardPage() {
   );
 }
 
-function StatCard({ label, value, color, icon }: { label: string; value: number; color: string; icon: React.ReactNode }) {
+function StatCard({
+  label,
+  value,
+  color,
+  icon,
+  loading,
+}: {
+  label: string;
+  value: number;
+  color: string;
+  icon: React.ReactNode;
+  loading?: boolean;
+}) {
   return (
     <div className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm">
       <div className="flex items-center justify-between mb-3">
         <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${color}`}>
           {icon}
         </div>
-        <span className="text-2xl font-bold text-gray-900">{value}</span>
+        {loading ? (
+          <span className="h-8 w-10 animate-pulse rounded-lg bg-gray-200" />
+        ) : (
+          <span className="text-2xl font-bold text-gray-900">{value}</span>
+        )}
       </div>
       <p className="text-sm font-medium text-gray-600">{label}</p>
     </div>

@@ -103,13 +103,14 @@ class AppointmentController extends Controller
     {
         $user = $request->user();
 
-        $appointments = Appointment::query()
+        $query = Appointment::query()
             ->with(['user', 'doctor', 'exam'])
             ->when($user->role !== 'admin', fn($query) => $query->where('user_id', $user->id))
             ->latest('date')
             ->orderBy('time', 'desc')
-            ->orderBy('id', 'desc')
-            ->paginate(15);
+            ->orderBy('id', 'desc');
+            
+        $appointments = $request->boolean('all') ? $query->get() : $query->paginate(15);
 
         return AppointmentResource::collection($appointments);
     }

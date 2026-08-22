@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 // Rotas públicas
 Route::post('/register', [AuthController::class, 'register'])->middleware('throttle:auth');
 Route::post('/login', [AuthController::class, 'login'])->middleware('throttle:auth');
+Route::get('/especialidades', [SpecialtyController::class, 'list']);
 
 //Qualquer usuário autenticado
 Route::middleware('auth:sanctum')->group(function() {
@@ -22,7 +23,6 @@ Route::middleware('auth:sanctum')->group(function() {
     Route::get('/agendamentos', [AppointmentController::class, 'list']);
     Route::put('/agendamentos/{appointment}', [AppointmentController::class, 'update']);
     Route::patch('/agendamentos/{appointment}/cancel', [AppointmentController::class, 'cancel']);
-    Route::get('/especialidades', [SpecialtyController::class, 'list']);
     Route::get('/medicos', [DoctorController::class, 'list']);
     Route::get('/exames', [ExamController::class, 'list']);
     Route::get('/planos-saude', [HealthPlanController::class, 'list']);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { CalendarX2 } from "lucide-react";
 import { getTipoLabel } from "../../lib/appointments";
 import { formatDateBR } from "../../lib/format";
 import type { Appointment } from "../../types/appointment";
@@ -43,10 +44,7 @@ export default function AppointmentModal({
       <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
         <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">
           <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
-            <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0V9m0 4v2" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13H5" />
-            </svg>
+            <CalendarX2 className="w-6 h-6 text-red-600" />
           </div>
 
           <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">
@@ -68,7 +66,7 @@ export default function AppointmentModal({
             <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 mb-4">{error}</div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -104,7 +102,7 @@ export default function AppointmentModal({
           </p>
 
           <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Data</label>
                 <input

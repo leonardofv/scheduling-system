@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Plus, Search, User, TriangleAlert } from "lucide-react";
 import { apiFetch } from "../../../../lib/api";
 
 interface Specialty {
@@ -172,9 +173,7 @@ export default function AdminDoctorsPage() {
           onClick={openCreateModal}
           className="inline-flex items-center gap-2 px-4 py-2.5 bg-emerald-600 text-white text-sm font-semibold rounded-lg hover:bg-emerald-700 transition-colors"
         >
-          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
+          <Plus className="w-4 h-4" />
           Novo Médico
         </button>
       </div>
@@ -184,9 +183,7 @@ export default function AdminDoctorsPage() {
       )}
 
       <div className="relative">
-        <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-        </svg>
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <input
           type="text"
           placeholder="Buscar médico por nome, CRM ou especialidade..."
@@ -205,9 +202,7 @@ export default function AdminDoctorsPage() {
 
       {filtered.length === 0 ? (
         <div className="rounded-xl border border-gray-200 bg-white p-8 text-center text-sm text-gray-700">
-          <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-          </svg>
+          <User className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1.5} />
           {search ? "Nenhum médico encontrado para essa busca." : "Nenhum médico cadastrado."}
         </div>
       ) : (
@@ -217,7 +212,7 @@ export default function AdminDoctorsPage() {
               key={doctor.id}
               className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-all"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm">
                     {doctor.nome.charAt(0)}
@@ -235,14 +230,14 @@ export default function AdminDoctorsPage() {
                       </p>
                     )}
                     {(doctor.email || doctor.telefone) && (
-                      <div className="flex gap-4 mt-1 text-xs text-gray-700">
+                      <div className="flex gap-x-4 gap-y-0.5 flex-wrap mt-1 text-xs text-gray-700">
                         {doctor.email && <span>{doctor.email}</span>}
                         {doctor.telefone && <span>{doctor.telefone}</span>}
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 ml-4 shrink-0">
+                <div className="flex gap-2 shrink-0 sm:ml-4">
                   <button
                     onClick={() => openEditModal(doctor)}
                     className="px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors"
@@ -280,7 +275,7 @@ export default function AdminDoctorsPage() {
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">CRM *</label>
                   <input
@@ -305,7 +300,7 @@ export default function AdminDoctorsPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
@@ -353,10 +348,7 @@ export default function AdminDoctorsPage() {
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-lg max-w-sm w-full p-6">
             <div className="flex items-center justify-center w-12 h-12 rounded-full bg-red-100 mx-auto mb-4">
-              <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0V9m0 4v2" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13H5" />
-              </svg>
+              <TriangleAlert className="w-6 h-6 text-red-600" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 text-center mb-2">Excluir Médico?</h3>
             <p className="text-sm text-gray-800 text-center mb-6">

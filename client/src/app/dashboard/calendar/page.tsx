@@ -1,9 +1,9 @@
 "use client";
-
 import "react-day-picker/style.css";
 import { DayPicker } from "react-day-picker";
 import { ptBR } from "react-day-picker/locale";
 import { useEffect, useMemo, useState } from "react";
+import { CalendarDays } from "lucide-react";
 import { apiFetch } from "../../../lib/api";
 import { parseLocalDate, isSameDay } from "../../../lib/format";
 import { getPaymentLabel, getStatusColor, getStatusLabel } from "../../../lib/appointments";
@@ -12,18 +12,22 @@ import type { Appointment } from "../../../types/appointment";
 export default function CalendarPage() {
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
 
   useEffect(() => {
     async function fetchAppointments() {
+      setError(null);
       try {
-        const res = await apiFetch("/api/agendamentos");
+        const res = await apiFetch("/api/agendamentos?all=1");
         if (res.ok) {
           const data = await res.json();
           setAppointments(data.data ?? data);
+        } else {
+          setError("Erro ao carregar agendamentos.");
         }
-      } catch (err) {
-        console.error("Erro ao carregar agendamentos:", err);
+      } catch {
+        setError("Erro ao carregar agendamentos.");
       } finally {
         setLoading(false);
       }
@@ -54,8 +58,12 @@ export default function CalendarPage() {
         </p>
       </div>
 
-      <section className="grid gap-8 xl:grid-cols-3 xl:items-start">
-        <div className="flex justify-center rounded-2xl border border-emerald-300 bg-white p-4 shadow-sm sm:p-6">
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+      )}
+
+      <section className="grid gap-8 xl:grid-cols-3">
+        <div className="rounded-2xl border border-emerald-300 bg-white p-4 shadow-sm sm:p-6">
           {loading ? (
             <div className="flex items-center justify-center py-16">
               <div className="h-6 w-6 animate-spin rounded-full border-4 border-emerald-200 border-t-emerald-600" />
@@ -68,10 +76,10 @@ export default function CalendarPage() {
               onSelect={setSelectedDate}
               showOutsideDays
               modifiers={{ hasAppointment: appointmentDates }}
-              className="mx-auto"
+              className="w-full"
               classNames={{
-                months: "relative flex flex-col sm:flex-row gap-4",
-                month: "space-y-4",
+                months: "relative flex flex-col sm:flex-row gap-4 w-full",
+                month: "space-y-4 w-full",
                 month_caption:
                   "flex justify-center items-center h-9 relative px-10 font-semibold text-gray-900 capitalize",
                 nav: "z-10 flex items-center justify-between absolute inset-x-0 top-0 h-9",
@@ -79,15 +87,16 @@ export default function CalendarPage() {
                   "h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-emerald-50 hover:text-emerald-700",
                 button_next:
                   "h-8 w-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-emerald-50 hover:text-emerald-700",
-                month_grid: "border-collapse mt-2",
-                weekdays: "flex justify-center",
-                weekday: "text-gray-400 text-xs font-medium w-10 h-9 flex items-center justify-center capitalize",
-                week: "flex w-full justify-center mt-1",
-                day: "w-10 h-10 text-center text-sm p-0 relative",
+                month_grid: "w-full border-collapse mt-2",
+                weekdays: "flex",
+                weekday: "flex-1 text-gray-400 text-xs font-medium h-9 flex items-center justify-center capitalize",
+                week: "flex w-full mt-1",
+                day: "flex-1 h-10 text-center text-sm p-0 relative",
                 day_button:
-                  "w-10 h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 transition-colors",
+                  "w-full h-10 rounded-lg flex items-center justify-center text-gray-700 hover:bg-emerald-50 transition-colors",
                 today: "[&>button]:font-bold [&>button]:text-emerald-700",
-                selected: "[&>button]:bg-emerald-600 [&>button]:text-white [&>button]:hover:bg-emerald-700",
+                selected:
+                  "[&>button]:bg-emerald-600 [&>button]:text-white [&>button]:hover:bg-emerald-700 [&>button]:after:bg-white!",
                 outside: "text-gray-300",
                 disabled: "text-gray-300",
               }}
@@ -99,7 +108,7 @@ export default function CalendarPage() {
           )}
         </div>
 
-        <div className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8">
+        <div className="rounded-2xl border border-emerald-300 bg-white p-6 shadow-sm sm:p-8 xl:col-span-2">
           <div className="mb-6">
             <p className="text-sm font-semibold text-emerald-700">
               {selectedDate
@@ -108,7 +117,7 @@ export default function CalendarPage() {
                     month: "long",
                     year: "numeric",
                   })
-                : "NENHUM DIA SELECIONADO"}
+                : "Nenhum dia selecionado"}
             </p>
             <h3 className="mt-1 text-xl font-bold text-gray-900">
               {selectedDayAppointments.length === 0
@@ -123,9 +132,7 @@ export default function CalendarPage() {
             </div>
           ) : selectedDayAppointments.length === 0 ? (
             <div className="text-center py-8">
-              <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-              </svg>
+              <CalendarDays className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1.5} />
               <p className="text-sm text-gray-500">Nenhum agendamento neste dia.</p>
             </div>
           ) : (

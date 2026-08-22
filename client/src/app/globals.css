@@ -3,7 +3,7 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
-  --app-font-sans: Arial, Helvetica, sans-serif;
+  --app-font-sans: var(--font-inter), Arial, Helvetica, sans-serif;
   --app-font-mono: "Courier New", Courier, monospace;
 }
 

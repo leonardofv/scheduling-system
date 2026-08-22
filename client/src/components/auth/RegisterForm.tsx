@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import { Check } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 
 interface Props {
@@ -87,9 +88,7 @@ export default function RegisterForm({ onSwitchToLogin }: Props) {
     return (
       <div className="flex flex-col items-center gap-4 p-8 text-center">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
-          <svg className="h-6 w-6" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
+          <Check className="h-6 w-6" />
         </div>
         <p className="text-sm text-gray-600">
           Cadastro realizado com sucesso! Faça login para continuar.

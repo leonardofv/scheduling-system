@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { Search, CircleCheck, CalendarX2 } from "lucide-react";
 import { apiFetch } from "../../../../lib/api";
 import { formatDateBR } from "../../../../lib/format";
 import { getPaymentLabel, getStatusColor, getStatusLabel, getTipoLabel } from "../../../../lib/appointments";
@@ -184,9 +185,7 @@ export default function AdminAppointmentsPage() {
 
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <svg className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-          </svg>
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
           <input
             type="text"
             placeholder="Buscar por paciente, médico ou exame..."
@@ -347,14 +346,9 @@ export default function AdminAppointmentsPage() {
               actionType === "confirm" ? "bg-emerald-100" : "bg-red-100"
             }`}>
               {actionType === "confirm" ? (
-                <svg className="w-6 h-6 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                <CircleCheck className="w-6 h-6 text-emerald-600" />
               ) : (
-                <svg className="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4v2m0 0V9m0 4v2" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 13H5" />
-                </svg>
+                <CalendarX2 className="w-6 h-6 text-red-600" />
               )}
             </div>
 
