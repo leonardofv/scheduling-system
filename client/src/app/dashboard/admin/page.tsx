@@ -2,6 +2,15 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import {
+  CalendarDays,
+  Clock,
+  CircleCheck,
+  Users,
+  User as UserIcon,
+  Stethoscope,
+  UserPlus,
+} from "lucide-react";
 import { apiFetch } from "../../../lib/api";
 import { formatDateBR } from "../../../lib/format";
 import { getStatusColor, getStatusLabel } from "../../../lib/appointments";
@@ -102,66 +111,42 @@ export default function AdminDashboardPage() {
       label: "Agendamentos",
       value: stats.totalAppointments,
       color: "bg-blue-100 text-blue-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      ),
+      icon: <CalendarDays className="w-5 h-5" />,
       href: "/dashboard/admin/appointments",
     },
     {
       label: "Pendentes",
       value: stats.pending,
       color: "bg-yellow-100 text-yellow-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      icon: <Clock className="w-5 h-5" />,
       href: "/dashboard/admin/appointments?status=pendente",
     },
     {
       label: "Confirmados",
       value: stats.confirmed,
       color: "bg-emerald-100 text-emerald-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-        </svg>
-      ),
+      icon: <CircleCheck className="w-5 h-5" />,
       href: "/dashboard/admin/appointments?status=confirmado",
     },
     {
       label: "Usuários",
       value: stats.totalUsers,
       color: "bg-violet-100 text-violet-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-        </svg>
-      ),
+      icon: <Users className="w-5 h-5" />,
       href: "/dashboard/admin/users",
     },
     {
       label: "Médicos",
       value: stats.totalDoctors,
       color: "bg-cyan-100 text-cyan-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
-      ),
+      icon: <UserIcon className="w-5 h-5" />,
       href: "/dashboard/admin/doctors",
     },
     {
       label: "Especialidades",
       value: stats.totalSpecialties,
       color: "bg-orange-100 text-orange-700",
-      icon: (
-        <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-        </svg>
-      ),
+      icon: <Stethoscope className="w-5 h-5" />,
       href: "/dashboard/admin/specialties",
     },
   ];
@@ -249,9 +234,7 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition-all text-left"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <CircleCheck className="w-5 h-5" />
             </div>
             <span className="text-sm font-semibold text-gray-900">Confirmar agendamentos</span>
           </button>
@@ -260,9 +243,7 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition-all text-left"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-blue-100 text-blue-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z" />
-              </svg>
+              <UserPlus className="w-5 h-5" />
             </div>
             <span className="text-sm font-semibold text-gray-900">Gerenciar médicos</span>
           </button>
@@ -271,9 +252,7 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition-all text-left"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-orange-100 text-orange-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
-              </svg>
+              <Stethoscope className="w-5 h-5" />
             </div>
             <span className="text-sm font-semibold text-gray-900">Gerenciar especialidades</span>
           </button>
@@ -282,9 +261,7 @@ export default function AdminDashboardPage() {
             className="flex items-center gap-3 rounded-lg bg-white p-4 shadow-sm hover:shadow-md transition-all text-left"
           >
             <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-violet-100 text-violet-700">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
+              <Users className="w-5 h-5" />
             </div>
             <span className="text-sm font-semibold text-gray-900">Gerenciar usuários</span>
           </button>

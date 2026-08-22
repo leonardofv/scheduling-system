@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
+import { Clipboard, Clock, CircleCheck, CalendarDays, CircleHelp } from "lucide-react";
 import { apiFetch } from "../../lib/api";
 import { formatDateBR, toLocalISODate } from "../../lib/format";
 import { getStatusColor, getStatusLabel } from "../../lib/appointments";
@@ -90,28 +91,28 @@ export default function DashboardPage() {
           value={appointments.length}
           loading={loading}
           color="bg-blue-200 text-blue-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" /></svg>}
+          icon={<Clipboard className="w-5 h-5" />}
         />
         <StatCard
           label="Pendentes"
           value={pending.length}
           loading={loading}
           color="bg-yellow-200 text-yellow-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+          icon={<Clock className="w-5 h-5" />}
         />
         <StatCard
           label="Confirmados"
           value={confirmed.length}
           loading={loading}
           color="bg-emerald-200 text-emerald-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>}
+          icon={<CircleCheck className="w-5 h-5" />}
         />
         <StatCard
           label="Próximos"
           value={upcoming.length}
           loading={loading}
           color="bg-violet-200 text-violet-700"
-          icon={<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>}
+          icon={<CalendarDays className="w-5 h-5" />}
         />
       </div>
 
@@ -137,9 +138,7 @@ export default function DashboardPage() {
               </div>
             ) : upcoming.length === 0 ? (
               <div className="text-center py-8">
-                <svg className="w-12 h-12 text-gray-300 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
+                <CalendarDays className="w-12 h-12 text-gray-300 mx-auto mb-3" strokeWidth={1.5} />
                 <p className="text-sm text-gray-500 mb-4">Nenhum agendamento futuro.</p>
                 <button
                   onClick={() => router.push("/dashboard/appointments/new")}
@@ -184,9 +183,7 @@ export default function DashboardPage() {
       <section className="flex flex-col items-center gap-4 rounded-2xl border border-emerald-300 bg-white p-6 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-start gap-3">
           <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700">
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <CircleHelp className="h-5 w-5" />
           </div>
           <div>
             <h2 className="font-semibold text-gray-900">Precisa de ajuda?</h2>

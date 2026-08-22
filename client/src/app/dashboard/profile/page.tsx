@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { Camera, CircleUserRound, Info } from "lucide-react";
 import { apiFetch } from "../../../lib/api";
 import { formatDateLong, formatRole } from "../../../lib/format";
 import type { User as Profile } from "../../../types/user";
@@ -122,10 +123,7 @@ export default function ProfilePage() {
               {uploading ? (
                 <div className="h-3 w-3 animate-spin rounded-full border-2 border-emerald-200 border-t-emerald-600" />
               ) : (
-                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 17a4 4 0 100-8 4 4 0 000 8z" />
-                </svg>
+                <Camera className="h-3.5 w-3.5" />
               )}
             </button>
             <input
@@ -155,9 +153,7 @@ export default function ProfilePage() {
         <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-sm sm:p-8 lg:col-span-3">
           <div className="flex items-start gap-3 border-b border-gray-100 pb-5">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-emerald-100 text-emerald-700" aria-hidden="true">
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A10.97 10.97 0 0112 15.5c2.51 0 4.824.842 6.879 2.304M15 11a3 3 0 11-6 0 3 3 0 016 0zM21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
+              <CircleUserRound className="h-5 w-5" />
             </div>
             <div>
               <h2 className="font-semibold text-gray-900">Informações pessoais</h2>
@@ -181,9 +177,7 @@ export default function ProfilePage() {
           </dl>
 
           <div className="mt-6 flex items-start gap-3 rounded-xl border border-blue-100 bg-blue-50 p-4 text-sm text-blue-900">
-            <svg className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <Info className="mt-0.5 h-5 w-5 shrink-0 text-blue-600" aria-hidden="true" />
             <p>Se precisar corrigir algum dado, entre em contato com o suporte para receber orientação.</p>
           </div>
         </section>
