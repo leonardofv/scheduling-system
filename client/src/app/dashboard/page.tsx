@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState, useEffect } from "react";
 import { apiFetch } from "../../lib/api";
-import { formatDateBR } from "../../lib/format";
+import { formatDateBR, toLocalISODate } from "../../lib/format";
 import { getStatusColor, getStatusLabel } from "../../lib/appointments";
 import type { Appointment } from "../../types/appointment";
 
@@ -17,22 +17,26 @@ export default function DashboardPage() {
   const [user, setUser] = useState<User | null>(null);
   const [appointments, setAppointments] = useState<Appointment[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     async function fetchData() {
+      setError(null);
       try {
         const [userRes, apptRes] = await Promise.all([
           apiFetch("/api/user"),
-          apiFetch("/api/agendamentos"),
+          apiFetch("/api/agendamentos?all=1"),
         ]);
 
         if (userRes.ok) setUser(await userRes.json());
         if (apptRes.ok) {
           const data = await apptRes.json();
           setAppointments(data.data ?? data);
+        } else {
+          setError("Erro ao carregar agendamentos.");
         }
-      } catch (err) {
-        console.error("Erro ao carregar dados:", err);
+      } catch {
+        setError("Erro ao carregar os dados da sua conta.");
       } finally {
         setLoading(false);
       }
@@ -43,7 +47,7 @@ export default function DashboardPage() {
 
   const pending = appointments.filter((a) => a.status === "pendente");
   const confirmed = appointments.filter((a) => a.status === "confirmado");
-  const today = new Date().toISOString().slice(0, 10);
+  const today = toLocalISODate(new Date());
   const upcoming = appointments
     .filter((a) => a.date >= today && a.status !== "cancelado")
     .sort((a, b) => a.date.localeCompare(b.date) || a.time.localeCompare(b.time));
@@ -59,6 +63,10 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8">
+      {error && (
+        <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</div>
+      )}
+
       <div className="bg-linear-to-br bg-emerald-700 rounded-2xl p-8">
         <div className="max-w-2xl">
           <h2 className="text-3xl font-bold text-white border-red-700 mb-2">

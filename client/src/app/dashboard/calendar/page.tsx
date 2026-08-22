@@ -18,7 +18,7 @@ export default function CalendarPage() {
     async function fetchAppointments() {
       setError(null);
       try {
-        const res = await apiFetch("/api/agendamentos");
+        const res = await apiFetch("/api/agendamentos?all=1");
         if (res.ok) {
           const data = await res.json();
           setAppointments(data.data ?? data);
