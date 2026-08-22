@@ -61,10 +61,6 @@ export default function SpecialityGrid() {
             ))}
           </ul>
         )}
-
-        <p className="mt-4 text-center text-sm text-gray-600">
-          Cada especialidade tem duração e preparo próprios.
-        </p>
       </div>
     </section>
   );
