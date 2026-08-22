@@ -398,7 +398,7 @@ export default function NewAppointmentPage() {
               )}
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Data</label>
                 <input
@@ -439,7 +439,7 @@ export default function NewAppointmentPage() {
           <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700">{formError}</div>
         )}
 
-        <div className="flex gap-3 pt-2">
+        <div className="flex flex-col-reverse gap-3 pt-2 sm:flex-row">
           <button
             type="button"
             onClick={() => router.push("/dashboard/appointments")}

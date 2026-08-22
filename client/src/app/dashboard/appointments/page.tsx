@@ -150,9 +150,9 @@ export default function AppointmentsPage() {
                 key={appointment.id}
                 className="bg-white rounded-xl border border-gray-200 shadow-sm hover:shadow-md transition-shadow p-6"
               >
-                <div className="flex items-center justify-between">
-                  <div className="flex-1">
-                    <div className="flex items-center gap-3 mb-1">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3 mb-1 flex-wrap">
                       <h3 className="text-lg font-semibold text-gray-900">
                         {getTipoLabel(appointment.tipo)} — {subject}
                       </h3>
@@ -199,7 +199,7 @@ export default function AppointmentsPage() {
                       )}
                     </div>
                   </div>
-                  <div className="flex gap-3 ml-6">
+                  <div className="flex gap-3 shrink-0 sm:ml-6">
                     {canEdit && (
                       <button
                         onClick={() => openEditModal(appointment)}

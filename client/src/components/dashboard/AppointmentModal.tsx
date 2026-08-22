@@ -66,7 +66,7 @@ export default function AppointmentModal({
             <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-sm text-red-700 mb-4">{error}</div>
           )}
 
-          <div className="flex gap-3">
+          <div className="flex flex-col-reverse gap-3 sm:flex-row">
             <button
               onClick={onClose}
               disabled={isLoading}
@@ -102,7 +102,7 @@ export default function AppointmentModal({
           </p>
 
           <div className="space-y-4 mb-6">
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="flex flex-col gap-1">
                 <label className="text-sm font-medium text-gray-700">Data</label>
                 <input

@@ -212,7 +212,7 @@ export default function AdminDoctorsPage() {
               key={doctor.id}
               className="rounded-xl border border-gray-200 bg-white p-5 shadow-sm hover:shadow-md transition-all"
             >
-              <div className="flex items-center justify-between">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div className="flex items-center gap-4 flex-1 min-w-0">
                   <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100 text-blue-700 font-bold text-sm">
                     {doctor.nome.charAt(0)}
@@ -230,14 +230,14 @@ export default function AdminDoctorsPage() {
                       </p>
                     )}
                     {(doctor.email || doctor.telefone) && (
-                      <div className="flex gap-4 mt-1 text-xs text-gray-700">
+                      <div className="flex gap-x-4 gap-y-0.5 flex-wrap mt-1 text-xs text-gray-700">
                         {doctor.email && <span>{doctor.email}</span>}
                         {doctor.telefone && <span>{doctor.telefone}</span>}
                       </div>
                     )}
                   </div>
                 </div>
-                <div className="flex gap-2 ml-4 shrink-0">
+                <div className="flex gap-2 shrink-0 sm:ml-4">
                   <button
                     onClick={() => openEditModal(doctor)}
                     className="px-3 py-1.5 text-sm font-medium text-emerald-700 bg-emerald-50 rounded-lg hover:bg-emerald-100 transition-colors"
@@ -275,7 +275,7 @@ export default function AdminDoctorsPage() {
                   className="w-full px-4 py-2.5 border border-gray-300 rounded-lg text-sm focus:border-emerald-500 focus:ring-2 focus:ring-emerald-100 focus:outline-none"
                 />
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">CRM *</label>
                   <input
@@ -300,7 +300,7 @@ export default function AdminDoctorsPage() {
                   </select>
                 </div>
               </div>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
